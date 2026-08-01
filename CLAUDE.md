@@ -32,7 +32,7 @@ When committing: review `git diff`
 An http-nu app: `serve.nu` is the handler, `templates/tides.html` the page
 (minijinja). No build step. Run it with:
 
-    http-nu --dev :5199 serve.nu
+    http-nu --dev --datastar :5199 serve.nu
 
 `--dev` is required locally so the station cookie works over plain http.
 

@@ -1,0 +1,33 @@
+{% if next %}
+<section class="hero" id="hero">
+  <span class="label {{ trend }}">{{ trend }}{% if rate %} &middot; {{ rate }}{% endif %}</span>
+  <div class="times">
+    <h1>{{ next.time }}</h1>
+    <small>now {{ now_time }}</small>
+  </div>
+  <p><b class="{{ next.kind }}">{{ next.kind }}</b> in {{ next.in }} &middot; {{ next.height }}</p>
+</section>
+{% endif %}
+
+<section class="chart" id="chart" aria-label="today's tide curve">
+  <svg viewBox="0 0 720 240" preserveAspectRatio="none" role="img">
+    <path class="area" d="{{ svg.area }}"/>
+    <path class="curve" d="{{ svg.line }}"/>
+    <line class="nowline" x1="{{ svg.now_x }}" y1="0" x2="{{ svg.now_x }}" y2="240"/>
+    {% for d in svg.dots %}
+    <circle class="dot {{ d.kind }}" cx="{{ d.x }}" cy="{{ d.y }}" r="5"/>
+    {% endfor %}
+    <circle class="nowdot" cx="{{ svg.now_x }}" cy="{{ svg.now_y }}" r="6"/>
+  </svg>
+  <div class="axis"><small>midnight</small><small>noon</small><small>midnight</small></div>
+</section>
+
+<section class="today" id="strip" aria-label="recent and upcoming tides">
+  {% for e in strip %}
+  <div class="chip{% if e.past %} past{% endif %}">
+    <span class="label {{ e.kind }}">{{ e.kind }}</span>
+    <b>{{ e.time }}</b>
+    <small>{{ e.height }}</small>
+  </div>
+  {% endfor %}
+</section>

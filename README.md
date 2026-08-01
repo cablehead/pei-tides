@@ -9,10 +9,14 @@ PEI station from the selector; the choice is remembered in a cookie.
 
 ## Run
 
-    http-nu --dev :5199 serve.nu
+    http-nu --dev --datastar :5199 serve.nu
 
-`--dev` lets the station cookie work over plain http. Open the page on a
-phone; it refreshes itself every 10 minutes.
+`--dev` lets the station cookie work over plain http; `--datastar` serves the
+JS bundle the live updates need (the deployed site enables it via
+`cross-stream.nuon`). An open page holds one SSE connection and receives a
+patch each minute -- countdown, now marker, and the tide strip stay current
+with no reloads and no client polling. The browser drops the connection while
+the page is hidden and reattaches on return.
 
 ## How it works
 

@@ -1,7 +1,7 @@
 # pei-tides: tide predictions for Prince Edward Island, served by http-nu.
 #
 # Run:
-#   http-nu --dev :5199 ~/pei-tides/serve.nu
+#   http-nu --dev --datastar :5199 ~/pei-tides/serve.nu
 #
 # Data comes from the Canadian Hydrographic Service IWLS API
 # (api-iwls.dfo-mpo.gc.ca): wlp-hilo for high/low events, wlp for the tide
@@ -15,6 +15,7 @@
 
 use http-nu/router *
 use http-nu/http *
+use http-nu/datastar *
 
 const HERE = (path self | path dirname)
 const TZ = "America/Halifax"
@@ -82,6 +83,7 @@ const STATIONS = [
 ]
 let TPL = .mj compile ($HERE | path join "templates" "tides.html")
 let MAPTPL = .mj compile ($HERE | path join "templates" "map.html")
+let LIVETPL = .mj compile ($HERE | path join "templates" "live.html")
 
 # in-memory day cache; recreated on handler reload
 try { stor create -t cache -c {k: str, v: str} } catch { }
@@ -260,7 +262,11 @@ def tides-context [code: string] {
       let code = if ($STATIONS | where code == $code | is-empty) { $DEFAULT } else { $code }
 
       let page = try {
-        tides-context $code | .mj render $TPL
+        let c = tides-context $code
+        $c
+        | insert live ($c | .mj render $LIVETPL)
+        | insert datastar $DATASTAR_JS_PATH
+        | .mj render $TPL
       } catch {|err|
         $"<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width, initial-scale=1'>
 <body style='background:#0d1b26;color:#eaf1f6;font:16px system-ui;padding:2rem'>
@@ -274,6 +280,30 @@ def tides-context [code: string] {
       } else {
         $page
       }
+    })
+
+    # Live updates: one SSE connection per open page. Every minute (the
+    # granularity at which the countdown can change) re-render the live
+    # fragments -- hero, chart, strip -- and push one patch event morphing all
+    # three by id. Ticks read the day cache, so no IWLS traffic; datastar
+    # closes the stream when the page is hidden and reattaches on show.
+    (route {method: "GET", path: "/sse"} {|req ctx|
+      let q = ($req | get -o query | get -o s)
+      let saved = ($req | cookie parse | get -o station)
+      let code = ($q | default ($saved | default $DEFAULT))
+      let code = if ($STATIONS | where code == $code | is-empty) { $DEFAULT } else { $code }
+      generate {|first|
+        if not $first { sleep 60sec }
+        let ev = try {
+          tides-context $code | .mj render $LIVETPL | to datastar-patch-elements
+        } catch {
+          # a failed IWLS fetch mid-stream: skip this tick, heal on the next
+          {data: []}
+        }
+        {out: $ev, next: false}
+      } true
+      | to sse
+      | metadata set --content-type "text/event-stream"
     })
 
     (route {method: "GET", path: "/map"} {|req ctx|

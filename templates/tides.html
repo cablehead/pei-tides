@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d1b26">
 <title>{{ station }} tides</title>
+<script type="module" src="{{ datastar }}"></script>
 <style>
   :root{
     --ground:#0d1b26; --panel:#122434; --line:#1d3245;
@@ -84,7 +85,7 @@
     text-decoration-color:var(--line);font-weight:400}
 </style>
 </head>
-<body>
+<body data-init="@get('/sse?s={{ code }}')">
 <div class="wrap">
   <header>
     <form method="get">
@@ -98,39 +99,7 @@
     <p class="sub"><small>{{ date_label }}</small><a href="/map">map</a></p>
   </header>
 
-  {% if next %}
-  <section class="hero">
-    <span class="label {{ trend }}">{{ trend }}{% if rate %} &middot; {{ rate }}{% endif %}</span>
-    <div class="times">
-      <h1>{{ next.time }}</h1>
-      <small>now {{ now_time }}</small>
-    </div>
-    <p><b class="{{ next.kind }}">{{ next.kind }}</b> in {{ next.in }} &middot; {{ next.height }}</p>
-  </section>
-  {% endif %}
-
-  <section class="chart" aria-label="today's tide curve">
-    <svg viewBox="0 0 720 240" preserveAspectRatio="none" role="img">
-      <path class="area" d="{{ svg.area }}"/>
-      <path class="curve" d="{{ svg.line }}"/>
-      <line class="nowline" x1="{{ svg.now_x }}" y1="0" x2="{{ svg.now_x }}" y2="240"/>
-      {% for d in svg.dots %}
-      <circle class="dot {{ d.kind }}" cx="{{ d.x }}" cy="{{ d.y }}" r="5"/>
-      {% endfor %}
-      <circle class="nowdot" cx="{{ svg.now_x }}" cy="{{ svg.now_y }}" r="6"/>
-    </svg>
-    <div class="axis"><small>midnight</small><small>noon</small><small>midnight</small></div>
-  </section>
-
-  <section class="today" aria-label="recent and upcoming tides">
-    {% for e in strip %}
-    <div class="chip{% if e.past %} past{% endif %}">
-      <span class="label {{ e.kind }}">{{ e.kind }}</span>
-      <b>{{ e.time }}</b>
-      <small>{{ e.height }}</small>
-    </div>
-    {% endfor %}
-  </section>
+  {{ live|safe }}
 
   <section class="week">
     <h2>next 7 days &middot; m</h2>
