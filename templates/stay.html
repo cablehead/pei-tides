@@ -21,6 +21,12 @@
     border:1px solid var(--line);border-radius:8px}
   .drow .curve{stroke:var(--accent);stroke-width:2;fill:none;opacity:.8}
   .drow .pdot{fill:var(--photo);stroke:var(--ground);stroke-width:2}
+
+  @media (max-width:639px){
+    figure{border-inline:0;border-radius:0}
+    .drow{padding-left:var(--gutter)}
+    .drow svg{border-right:0;border-radius:8px 0 0 8px}
+  }
 </style>
 </head>
 <body>
@@ -33,7 +39,7 @@
     </p>
   </header>
 
-  <section class="cards">
+  <section class="cards bleed">
     {% if not photos %}
     <small>no photos yet -- ingest with: nu tools/ingest.nu &lt;originals&gt;</small>
     {% endif %}
@@ -49,7 +55,7 @@
     {% endfor %}
   </section>
 
-  <section class="days" aria-label="each day's curve, dots are photos">
+  <section class="days bleed" aria-label="each day's curve, dots are photos">
     {% for d in days %}
     <div class="drow{% if d.today %} today{% endif %}" id="d-{{ loop.index0 }}">
       <small>{{ d.label }}</small>

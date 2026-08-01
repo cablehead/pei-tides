@@ -5,6 +5,7 @@
   --ground:#0d1b26; --panel:#122434; --line:#1d3245;
   --ink:#eaf1f6; --muted:#8ea3b4;
   --accent:#5fcfc0; --high:#7fb8ff; --low:#e2b06a; --photo:#ffb85c;
+  --gutter:1.1rem;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -25,8 +26,13 @@ a{color:var(--accent);font-weight:650;text-decoration:none}
 .high,.rising{color:var(--high)}
 .low,.falling{color:var(--low)}
 
-.wrap{max-width:600px;margin:0 auto;padding:1rem 1.1rem 2.5rem;
+.wrap{max-width:600px;margin:0 auto;padding:1rem var(--gutter) 2.5rem;
   display:flex;flex-direction:column;gap:1.4rem}
+/* panel sections bleed to the screen edge on phones; text keeps the gutter.
+   pages square off corners/side borders per component in the same breakpoint. */
+@media (max-width:639px){
+  .bleed{margin-inline:calc(-1 * var(--gutter))}
+}
 header{display:flex;flex-direction:column;gap:.4rem}
 .sub{display:flex;justify-content:space-between;align-items:baseline}
 footer{text-align:center;line-height:1.6}

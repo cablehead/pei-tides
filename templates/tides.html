@@ -16,14 +16,8 @@
   .hero h1{font-size:clamp(2.6rem,14vw,3.4rem);line-height:1.05;letter-spacing:-.02em}
   .times{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
 
-  /* full-bleed on phones: pull the chart out of the wrap's side padding and
-     drop the side chrome; the card look returns once the 600px column no
-     longer touches the screen edges */
-  .chart{background:var(--panel);border-block:1px solid var(--line);
-    margin-inline:-1.1rem;padding:.9rem .9rem .6rem}
-  @media (min-width: 640px){
-    .chart{margin-inline:0;border:1px solid var(--line);border-radius:14px}
-  }
+  .chart{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:.9rem .9rem .6rem}
   .chart svg{display:block;width:100%;height:150px}
   .chart .area{fill:rgba(95,207,192,.14)}
   .chart .curve{stroke:var(--accent);stroke-width:3;fill:none;stroke-linecap:round}
@@ -49,6 +43,12 @@
   .day.today > small{color:var(--accent);font-weight:650}
   .cell{display:flex;flex-direction:column}
   .cell b{white-space:nowrap}
+
+  @media (max-width:639px){
+    .chart{border-inline:0;border-radius:0}
+    .week h2{margin-left:var(--gutter)}
+    .day{padding-inline:var(--gutter)}
+  }
 </style>
 </head>
 <body data-init="@get('/sse?s={{ code }}')">
@@ -67,7 +67,7 @@
 
   {{ live|safe }}
 
-  <section class="week">
+  <section class="week bleed">
     <h2>next 7 days &middot; m</h2>
     {% for d in days %}
     <div class="day{% if d.today %} today{% endif %}">
