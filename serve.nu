@@ -293,7 +293,13 @@ def tides-context [code: string] {
       let code = ($q | default ($saved | default $DEFAULT))
       let code = if ($STATIONS | where code == $code | is-empty) { $DEFAULT } else { $code }
       generate {|first|
-        if not $first { sleep 60sec }
+        if not $first {
+          # sleep to the next minute boundary, not a flat 60s: the countdown
+          # and "now" flip exactly on the minute, so patches land in step
+          # with the wall clock (and all clients tick together)
+          let ns = (date now | into int)
+          sleep ((60_000_000_000 - ($ns mod 60_000_000_000)) * 1ns)
+        }
         let ev = try {
           tides-context $code | .mj render $LIVETPL | to datastar-patch-elements
         } catch {
