@@ -13,14 +13,18 @@
   figure img{display:block;width:100%;height:auto}
   figcaption{padding:.7rem var(--gutter) .8rem;display:flex;flex-direction:column;gap:.1rem}
 
-  .days{display:flex;flex-direction:column;gap:.15rem;padding-inline:var(--gutter)}
-  .drow{display:grid;grid-template-columns:3.4rem 1fr;gap:.6rem;
-    align-items:center;scroll-margin-top:1rem}
-  .drow.today small{color:var(--accent);font-weight:650}
-  .drow svg{display:block;width:100%;height:44px;background:var(--panel);
-    border:1px solid var(--line);border-radius:8px}
-  .drow .curve{stroke:var(--accent);stroke-width:2;fill:none;opacity:.8}
-  .drow .pdot{fill:var(--photo);stroke:var(--ground);stroke-width:2}
+  .strip{overflow-x:auto;scroll-margin-top:1rem}
+  .strip svg{display:block}
+  .strip text{font:12px system-ui;fill:var(--muted)}
+  .strip .dlab{font-weight:650}
+  .strip .dlab.today{fill:var(--accent)}
+  .strip .ev{font-weight:650;text-anchor:middle}
+  .strip .ev.high{fill:var(--high)}
+  .strip .ev.low{fill:var(--low)}
+  .strip .grid{stroke:var(--line)}
+  .strip .curve{stroke:var(--accent);stroke-width:2;fill:none;opacity:.8}
+  .strip .nowline{stroke:rgba(234,241,246,.28);stroke-width:1.5;stroke-dasharray:3 4}
+  .strip .pdot{fill:var(--photo);stroke:var(--ground);stroke-width:2}
 </style>
 </head>
 <body>
@@ -42,26 +46,39 @@
       <img src="/photos/{{ p.file }}" loading="lazy" alt="beach at {{ p.height }} m">
       <figcaption>
         <b>{{ p.height }} m &middot; <span class="{{ p.phase }}">{{ p.phase }}</span></b>
-        <small><a href="#d-{{ p.day }}">{{ p.when }}</a></small>
+        <small><a href="#days" data-day="{{ p.day }}">{{ p.when }}</a></small>
         <small>{{ p.between }}</small>
       </figcaption>
     </figure>
     {% endfor %}
   </section>
 
-  <section class="days" aria-label="each day's curve, dots are photos">
-    {% for d in days %}
-    <div class="drow{% if d.today %} today{% endif %}" id="d-{{ loop.index0 }}">
-      <small>{{ d.label }}</small>
-      <svg viewBox="0 0 720 80" preserveAspectRatio="none">
-        <polyline class="curve" points="{{ d.points }}"/>
-        {% for p in d.dots %}
-        <a href="#p-{{ p.stem }}"><circle class="pdot" cx="{{ p.x }}" cy="{{ p.y }}" r="7"/></a>
-        {% endfor %}
-      </svg>
-    </div>
-    {% endfor %}
+  <section class="strip panel" id="days" aria-label="the trip's tide curve, dots are photos">
+    <svg width="{{ strip.w }}" height="{{ strip.h }}">
+      {% for d in strip.days %}
+      <line class="grid" x1="{{ d.x - 8 }}" y1="0" x2="{{ d.x - 8 }}" y2="{{ strip.h }}"/>
+      <text class="dlab{% if d.today %} today{% endif %}" x="{{ d.x }}" y="16">{{ d.label }}</text>
+      {% endfor %}
+      <polyline class="curve" points="{{ strip.points }}"/>
+      {% if strip.now_x %}
+      <line class="nowline" x1="{{ strip.now_x }}" y1="0" x2="{{ strip.now_x }}" y2="{{ strip.h }}"/>
+      {% endif %}
+      {% for e in strip.events %}
+      <circle class="dot {{ e.kind }}" cx="{{ e.x }}" cy="{{ e.y }}" r="4" fill="var(--{{ e.kind }})"/>
+      <text class="ev {{ e.kind }}" x="{{ e.x }}" y="{{ e.ly }}">{{ e.label }}</text>
+      {% endfor %}
+      {% for p in strip.dots %}
+      <a href="#p-{{ p.stem }}"><circle class="pdot" cx="{{ p.x }}" cy="{{ p.y }}" r="7"/></a>
+      {% endfor %}
+    </svg>
   </section>
+  <script>
+    const strip = document.getElementById('days');
+    const scrollTo = d => strip.scrollTo({left: d * {{ day_w }} - 20, behavior: 'smooth'});
+    document.querySelectorAll('a[data-day]').forEach(a =>
+      a.addEventListener('click', () => scrollTo(+a.dataset.day)));
+    {% if strip.now_x %}strip.scrollLeft = {{ strip.now_x }} - 60;{% endif %}
+  </script>
 
   <footer><small>heights above chart datum, midpoint of Canoe Cove and Victoria</small></footer>
 </div>

@@ -152,42 +152,68 @@ def stay-context [] {
     open ($HERE | path join "data" "photos.json")
   } else { [] })
 
+  # one continuous strip: DAY_W px per day, 1:1 svg units so text is crisp
+  let day_w = 300
+  let h = 160
+  let base = ((($start - $from) / 5min) | math round)
+  let n = ($vals | length)
+  let window = ($vals | skip $base | take ($ndays * 288 + 1))
   let pad = 0.15
-  let lo = (($vals | math min) - $pad)
-  let hi = (($vals | math max) + $pad)
-  let sy = {|v| (80 - (($v - $lo) / ($hi - $lo) * 80)) | math round --precision 1 }
+  let lo = (($window | math min) - $pad)
+  let hi = (($window | math max) + $pad)
+  # chart band inset top and bottom so event labels fit inside the svg
+  let sy = {|v| (132 - (($v - $lo) / ($hi - $lo) * 104)) | math round --precision 1 }
   let today = (date now | date to-timezone $TZ | format date "%Y-%m-%d")
+  let now = (date now)
 
-  let days = (0..($ndays - 1) | each {|i|
-    let day_start = ($start + ($i * 1day))
-    let base = ((($day_start - $from) / 5min) | math round)
-    # 288 5-min points per day; every 3rd -> 15-min rows, +1 to reach midnight
-    let pts = (0..96 | each {|j|
-      let idx = ([($base + $j * 3) (($vals | length) - 1)] | math min)
-      let x = ($j / 96 * 720 | math round --precision 1)
-      $"($x),(do $sy ($vals | get $idx))"
-    })
-    {
-      label: ($day_start | date to-timezone $TZ | format date "%a %-d")
-      today: (($day_start | date to-timezone $TZ | format date "%Y-%m-%d") == $today)
-      points: ($pts | str join " ")
-      dots: ($photos | each {|p|
-        let t = ($p.taken | into datetime)
-        if $t >= $day_start and $t < ($day_start + 1day) {
-          {
-            stem: ($p.file | path parse | get stem)
-            x: ((($t - $day_start) / 1min) / 1440 * 720 | math round --precision 1)
-            y: (do $sy $p.height)
-          }
-        } else { null }
-      } | compact)
+  let points = (0..($ndays * 96) | each {|j|
+    let idx = ([($base + $j * 3) ($n - 1)] | math min)
+    $"(($j * $day_w / 96 | math round --precision 1)),(do $sy ($vals | get $idx))"
+  } | str join " ")
+
+  # hilo averaged across the two stations, trimmed to the trip
+  let events = ($a.hilo | zip $b.hilo | each {|p|
+      let t0 = ($p.0.t | into datetime)
+      let t = ($t0 + ((($p.1.t | into datetime) - $t0) / 2))
+      {kind: $p.0.kind, t: $t, v: (($p.0.v + $p.1.v) / 2)}
     }
-  })
+    | where t >= $start and t < ($start + ($ndays * 1day))
+    | each {|e|
+      let y = (do $sy $e.v)
+      {
+        kind: $e.kind
+        x: ((($e.t - $start) / 1day) * $day_w | math round --precision 1)
+        y: $y
+        ly: (if $e.kind == "high" { $y - 12 } else { $y + 22 })
+        label: ($e.v | math round --precision 1)
+      }
+    })
+
+  let strip = {
+    w: ($ndays * $day_w)
+    h: $h
+    points: $points
+    days: (0..($ndays - 1) | each {|i| {
+      x: ($i * $day_w + 8)
+      label: (($start + ($i * 1day)) | date to-timezone $TZ | format date "%a %-d")
+      today: ((($start + ($i * 1day)) | date to-timezone $TZ | format date "%Y-%m-%d") == $today)
+    }})
+    events: $events
+    dots: ($photos | each {|p| {
+      stem: ($p.file | path parse | get stem)
+      x: (((($p.taken | into datetime) - $start) / 1day) * $day_w | math round --precision 1)
+      y: (do $sy $p.height)
+    }})
+    now_x: (if $now >= $start and $now < ($start + ($ndays * 1day)) {
+      (($now - $start) / 1day) * $day_w | math round --precision 1
+    } else { null })
+  }
 
   {
     range_label: ($"($start | date to-timezone $TZ | format date '%b %-d') - (($start + (($ndays - 1) * 1day)) | date to-timezone $TZ | format date '%b %-d')")
     station_label: (if ($snaps | length) == 2 { "two-station midpoint" } else { $a.station.name })
-    days: $days
+    strip: $strip
+    day_w: $day_w
     photos: ($photos | each {|p| {
       stem: ($p.file | path parse | get stem)
       file: $p.file
