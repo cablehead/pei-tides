@@ -39,7 +39,7 @@
   .low,.falling{color:var(--low)}
 
   /* layout */
-  .wrap{max-width:27rem;margin:0 auto;padding:1rem 1.1rem 2.5rem;
+  .wrap{max-width:600px;margin:0 auto;padding:1rem 1.1rem 2.5rem;
     display:flex;flex-direction:column;gap:1.4rem}
 
   header{display:flex;flex-direction:column;gap:.4rem}
@@ -51,8 +51,14 @@
   .hero{display:flex;flex-direction:column;gap:.15rem;padding:.3rem .15rem 0}
   .times{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
 
-  .chart{background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:.9rem .9rem .6rem}
+  /* full-bleed on phones: pull the chart out of the wrap's side padding and
+     drop the side chrome; the card look returns once the 600px column no
+     longer touches the screen edges */
+  .chart{background:var(--panel);border-block:1px solid var(--line);
+    margin-inline:-1.1rem;padding:.9rem .9rem .6rem}
+  @media (min-width: 640px){
+    .chart{margin-inline:0;border:1px solid var(--line);border-radius:14px}
+  }
   .chart svg{display:block;width:100%;height:150px}
   .chart .area{fill:rgba(95,207,192,.14)}
   .chart .curve{stroke:var(--accent);stroke-width:3;fill:none;stroke-linecap:round}
