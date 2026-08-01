@@ -19,7 +19,7 @@ use http-nu/http *
 const HERE = (path self | path dirname)
 const TZ = "America/Halifax"
 const API = "https://api-iwls.dfo-mpo.gc.ca/api/v1"
-const DEFAULT = "01710" # Canoe Cove -- nearest station to the Bonshaw shore
+const DEFAULT = "01710" # Canoe Cove -- nearest station to the home shore
 
 const STATIONS = [
   {code: "01795", name: "Abegweit Passage", id: "5dd3064ee0fdc4b9b4be67d6", lat: 46.166667, lon: -63.733333}

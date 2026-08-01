@@ -48,5 +48,5 @@ An http-nu app: `serve.nu` is the handler, `templates/tides.html` the page
   it is taller than its neighbour. North-shore stations have mixed/diurnal
   tides -- days with 1 or 2 events are normal, never assume 4.
 - The PEI station list is baked into `serve.nu` (see the header comment to
-  regenerate). DEFAULT is Canoe Cove, the nearest station to the Bonshaw
+  regenerate). DEFAULT is Canoe Cove, the nearest station to the home
   shore; the cookie overrides it per browser.
