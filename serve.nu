@@ -134,8 +134,9 @@ def tides-context [code: string] {
   let midnight = ($"($today)T00:00:00($now | format date '%:z')" | into datetime)
   let from = ($midnight | to-utc-z)
 
+  # a day of lookback so the strip can trail the most recent past tide
   let hilo_raw = cached $"hilo:($code):($today)" {
-    api-data $station.id "wlp-hilo" $from (($midnight + 7day) | to-utc-z)
+    api-data $station.id "wlp-hilo" (($midnight - 1day) | to-utc-z) (($midnight + 7day) | to-utc-z)
   }
   # wlp is 1-minute resolution; keep every 15th point for the curve
   let curve = cached $"curve:($code):($today)" {
@@ -182,7 +183,13 @@ def tides-context [code: string] {
   let day_mins = 1440
   let now_min = (($now - $midnight) / 1min | math floor)
   let now_idx = ([([($now_min // 15) 0] | math max) ($n - 1)] | math min)
-  let today_events = ($events | where t < ($midnight + 1day))
+  let today_events = ($events | where t >= $midnight and t < ($midnight + 1day))
+
+  # the strip: the most recent past tide, then the next three -- a window
+  # that slides left as time passes
+  let fi = ($events | enumerate | where {|r| $r.item.t > $now } | get -o 0 | get -o index
+    | default ($events | length))
+  let strip = ($events | skip ([($fi - 1) 0] | math max) | take 4)
 
   # rate of change over the next hour (4 curve samples), for the trend line
   let ahead = ([($now_idx + 4) ($n - 1)] | math min)
@@ -209,13 +216,14 @@ def tides-context [code: string] {
         height: (fmt-height $next.v)
       }
     })
-    today: ($today_events | each {|e| {
+    strip: ($strip | each {|e| {
       kind: $e.kind
       time: ($e.t | fmt-time)
       height: (fmt-height $e.v)
       past: ($e.t < $now)
     }})
     days: ($events
+      | where t >= $midnight
       | group-by {|e| $e.t | date to-timezone $TZ | format date "%Y-%m-%d" }
       | transpose d evs
       | sort-by d

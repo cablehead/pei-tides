@@ -122,8 +122,8 @@
     <div class="axis"><small>midnight</small><small>noon</small><small>midnight</small></div>
   </section>
 
-  <section class="today" aria-label="today's tides">
-    {% for e in today %}
+  <section class="today" aria-label="recent and upcoming tides">
+    {% for e in strip %}
     <div class="chip{% if e.past %} past{% endif %}">
       <span class="label {{ e.kind }}">{{ e.kind }}</span>
       <b>{{ e.time }}</b>
