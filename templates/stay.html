@@ -75,7 +75,8 @@
     {% endif %}
     {% for p in photos %}
     <figure class="panel" id="p-{{ p.stem }}">
-      <img src="/photos/{{ p.file }}" loading="lazy" alt="beach at {{ p.height }} m">
+      <img src="/photos/{{ p.file }}" width="{{ p.w }}" height="{{ p.h }}"
+        loading="lazy" alt="beach at {{ p.height }} m">
       <figcaption>
         <b>{{ p.height }} m &middot; <span class="{{ p.phase }}">{{ p.phase }}</span></b>
         <small><a href="#days" data-day="{{ p.day }}">{{ p.when }}</a></small>

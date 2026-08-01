@@ -15,7 +15,7 @@ const ROOT = ($HERE | path dirname)
 def snaps [] {
   glob ($ROOT | path join data "*.json")
   | each {|f| open $f }
-  | where {|d| ($d | get -o station) != null }
+  | where {|d| ($d | describe -d | get type) == "record" and ($d | get -o station) != null }
 }
 
 # tide state in one snapshot at instant t: curve height by index (the curve
@@ -67,6 +67,7 @@ def main [...files: path] {
     let out = ($ROOT | path join "photos" $out_name)
     mkdir ($ROOT | path join "photos")
     ^convert $f -auto-orient -resize "1600x1600>" -quality 82 $out
+    let dims = (^identify -format "%w %h" $out | split row " ")
 
     let looks = ($stations | each {|s| lookup $s $taken })
     let height = (($looks | get v | math avg) | math round --precision 2)
@@ -79,6 +80,8 @@ def main [...files: path] {
 
     {
       file: $out_name
+      w: ($dims.0 | into int)
+      h: ($dims.1 | into int)
       taken: ($taken | date to-timezone UTC | format date "%Y-%m-%dT%H:%M:%SZ")
       taken_local: ($taken | date to-timezone America/Halifax | format date "%Y-%m-%d %-I:%M:%S %P")
       height: $height

@@ -247,6 +247,8 @@ def stay-context [] {
     photos: ($photos | each {|p| {
       stem: ($p.file | path parse | get stem)
       file: $p.file
+      w: ($p | get -o w | default 4)
+      h: ($p | get -o h | default 3)
       day: ((($p.taken | into datetime) - $start) / 1day | math floor)
       height: $p.height
       phase: $p.phase
