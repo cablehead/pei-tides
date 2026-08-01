@@ -183,6 +183,7 @@ def stay-context [] {
     photos: ($photos | each {|p| {
       stem: ($p.file | path parse | get stem)
       file: $p.file
+      day: ((($p.taken | into datetime) - $from) / 1day | math floor)
       height: $p.height
       phase: $p.phase
       when: ($p.taken | into datetime | date to-timezone $TZ | format date "%A %B %-d, %-I:%M %P")
@@ -374,6 +375,10 @@ def tides-context [code: string] {
       } true
       | to sse
       | metadata set --content-type "text/event-stream"
+    })
+
+    (route {method: "GET", path: "/style.css"} {|req ctx|
+      .static ($HERE | path join "static") "/style.css"
     })
 
     (route {method: "GET", path: "/stay"} {|req ctx|

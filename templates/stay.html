@@ -5,48 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d1b26">
 <title>the stay &middot; tides</title>
+<link rel="stylesheet" href="/style.css">
 <style>
-  :root{
-    --ground:#0d1b26; --panel:#122434; --line:#1d3245;
-    --ink:#eaf1f6; --muted:#8ea3b4;
-    --accent:#5fcfc0; --high:#7fb8ff; --low:#e2b06a; --photo:#ffb85c;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0}
-  body{background:var(--ground);color:var(--ink);
-    font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
-    font-variant-numeric:tabular-nums;
-    padding:env(safe-area-inset-top) env(safe-area-inset-right)
-            env(safe-area-inset-bottom) env(safe-area-inset-left)}
-  h1{font-size:1.5rem;font-weight:650;margin:0;letter-spacing:-.01em}
-  h2,.label{font-size:.75rem;font-weight:650;letter-spacing:.12em;
-    text-transform:uppercase;color:var(--muted);margin:0}
-  p{margin:0}
-  small{font-size:.85rem;color:var(--muted)}
-  b{font-weight:650}
-  a{color:var(--accent);font-weight:650;text-decoration:none}
-  .high,.rising{color:var(--high)}
-  .low,.falling{color:var(--low)}
-
-  .wrap{max-width:27rem;margin:0 auto;padding:1rem 1.1rem 2.5rem;
-    display:flex;flex-direction:column;gap:1.4rem}
-  header{display:flex;flex-direction:column;gap:.15rem}
-  header .sub{display:flex;justify-content:space-between;align-items:baseline}
-
-  .days{display:flex;flex-direction:column;gap:.15rem}
-  .drow{display:grid;grid-template-columns:3.4rem 1fr;gap:.6rem;align-items:center}
-  .drow.today small{color:var(--accent);font-weight:650}
-  .drow svg{display:block;width:100%;height:44px;background:var(--panel);
-    border:1px solid var(--line);border-radius:8px}
-  .drow .curve{stroke:var(--accent);stroke-width:2;fill:none;opacity:.8}
-  .drow .pdot{fill:var(--photo);stroke:var(--ground);stroke-width:2}
-
   .cards{display:flex;flex-direction:column;gap:1.1rem}
   figure{margin:0;background:var(--panel);border:1px solid var(--line);
     border-radius:14px;overflow:hidden;scroll-margin-top:1rem}
   figure img{display:block;width:100%;height:auto}
   figcaption{padding:.7rem .9rem .8rem;display:flex;flex-direction:column;gap:.1rem}
-  footer{text-align:center}
+
+  .days{display:flex;flex-direction:column;gap:.15rem}
+  .drow{display:grid;grid-template-columns:3.4rem 1fr;gap:.6rem;
+    align-items:center;scroll-margin-top:1rem}
+  .drow.today small{color:var(--accent);font-weight:650}
+  .drow svg{display:block;width:100%;height:44px;background:var(--panel);
+    border:1px solid var(--line);border-radius:8px}
+  .drow .curve{stroke:var(--accent);stroke-width:2;fill:none;opacity:.8}
+  .drow .pdot{fill:var(--photo);stroke:var(--ground);stroke-width:2}
 </style>
 </head>
 <body>
@@ -59,9 +33,25 @@
     </p>
   </header>
 
+  <section class="cards">
+    {% if not photos %}
+    <small>no photos yet -- ingest with: nu tools/ingest.nu &lt;originals&gt;</small>
+    {% endif %}
+    {% for p in photos %}
+    <figure id="p-{{ p.stem }}">
+      <img src="/photos/{{ p.file }}" loading="lazy" alt="beach at {{ p.height }} m">
+      <figcaption>
+        <b>{{ p.height }} m &middot; <span class="{{ p.phase }}">{{ p.phase }}</span></b>
+        <small><a href="#d-{{ p.day }}">{{ p.when }}</a></small>
+        <small>{{ p.between }}</small>
+      </figcaption>
+    </figure>
+    {% endfor %}
+  </section>
+
   <section class="days" aria-label="each day's curve, dots are photos">
     {% for d in days %}
-    <div class="drow{% if d.today %} today{% endif %}">
+    <div class="drow{% if d.today %} today{% endif %}" id="d-{{ loop.index0 }}">
       <small>{{ d.label }}</small>
       <svg viewBox="0 0 720 80" preserveAspectRatio="none">
         <polyline class="curve" points="{{ d.points }}"/>
@@ -70,22 +60,6 @@
         {% endfor %}
       </svg>
     </div>
-    {% endfor %}
-  </section>
-
-  <section class="cards">
-    {% if photos %}<h2>photos</h2>{% else %}
-    <small>no photos yet -- ingest with: nu tools/ingest.nu &lt;originals&gt;</small>
-    {% endif %}
-    {% for p in photos %}
-    <figure id="p-{{ p.stem }}">
-      <img src="/photos/{{ p.file }}" loading="lazy" alt="beach at {{ p.height }} m">
-      <figcaption>
-        <b>{{ p.height }} m &middot; <span class="{{ p.phase }}">{{ p.phase }}</span></b>
-        <small>{{ p.when }}</small>
-        <small>{{ p.between }}</small>
-      </figcaption>
-    </figure>
     {% endfor %}
   </section>
 

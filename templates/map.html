@@ -6,15 +6,9 @@
 <meta name="theme-color" content="#0d1b26">
 <title>PEI tide stations</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="/style.css">
 <style>
-  :root{
-    --ground:#0d1b26; --panel:#122434; --line:#1d3245;
-    --ink:#eaf1f6; --muted:#8ea3b4; --accent:#5fcfc0; --high:#7fb8ff;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;height:100%}
-  body{background:var(--ground);color:var(--ink);
-    font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+  body{padding:0}
   #map{position:fixed;inset:0;background:var(--ground)}
   .bar{
     position:fixed;top:0;left:0;right:0;z-index:1000;
@@ -24,7 +18,6 @@
     pointer-events:none;
   }
   .bar a,.bar .title{pointer-events:auto}
-  .bar a{color:var(--accent);text-decoration:none;font-weight:650}
   .bar .title{color:var(--muted);font-size:.85rem}
   .leaflet-popup-content-wrapper,.leaflet-popup-tip{
     background:var(--panel);color:var(--ink);border:1px solid var(--line)}

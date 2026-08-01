@@ -6,49 +6,14 @@
 <meta name="theme-color" content="#0d1b26">
 <title>{{ station }} tides</title>
 <script type="module" src="{{ datastar }}"></script>
+<link rel="stylesheet" href="/style.css">
 <style>
-  :root{
-    --ground:#0d1b26; --panel:#122434; --line:#1d3245;
-    --ink:#eaf1f6; --muted:#8ea3b4;
-    --accent:#5fcfc0; --high:#7fb8ff; --low:#e2b06a;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0}
-
-  /* type primitives: everything on the page composes from these.
-     sizes: h1 (display) / base / small / h2+.label (caps eyebrow).
-     weights: 400 and 650. numerals tabular throughout. */
-  body{
-    background:var(--ground); color:var(--ink);
-    font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
-    font-variant-numeric:tabular-nums;
-    padding:env(safe-area-inset-top) env(safe-area-inset-right)
-            env(safe-area-inset-bottom) env(safe-area-inset-left);
-  }
-  h1{font-size:clamp(2.6rem,14vw,3.4rem);font-weight:650;line-height:1.05;
-    letter-spacing:-.02em;margin:0}
-  h2,.label{font-size:.75rem;font-weight:650;letter-spacing:.12em;
-    text-transform:uppercase;color:var(--muted);margin:0}
-  p{margin:0}
-  small{font-size:.85rem;color:var(--muted)}
-  b{font-weight:650}
-  a{color:var(--accent);font-weight:650;text-decoration:none}
-
-  /* the only other color channel: tide kind */
-  .high,.rising{color:var(--high)}
-  .low,.falling{color:var(--low)}
-
-  /* layout */
-  .wrap{max-width:600px;margin:0 auto;padding:1rem 1.1rem 2.5rem;
-    display:flex;flex-direction:column;gap:1.4rem}
-
-  header{display:flex;flex-direction:column;gap:.4rem}
   select{width:100%;font:inherit;font-weight:650;color:var(--ink);
     background:var(--panel);border:1px solid var(--line);border-radius:10px;
     padding:.6rem .8rem;appearance:none;-webkit-appearance:none}
-  .sub{display:flex;justify-content:space-between;align-items:baseline;padding:0 .15rem}
 
   .hero{display:flex;flex-direction:column;gap:.15rem;padding:.3rem .15rem 0}
+  .hero h1{font-size:clamp(2.6rem,14vw,3.4rem);line-height:1.05;letter-spacing:-.02em}
   .times{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
 
   /* full-bleed on phones: pull the chart out of the wrap's side padding and
@@ -84,11 +49,6 @@
   .day.today > small{color:var(--accent);font-weight:650}
   .cell{display:flex;flex-direction:column}
   .cell b{white-space:nowrap}
-
-  footer{text-align:center;line-height:1.6}
-  footer small{opacity:.8}
-  footer a{color:var(--muted);text-decoration:underline;
-    text-decoration-color:var(--line);font-weight:400}
 </style>
 </head>
 <body data-init="@get('/sse?s={{ code }}')">
