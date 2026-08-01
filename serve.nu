@@ -22,65 +22,66 @@ const API = "https://api-iwls.dfo-mpo.gc.ca/api/v1"
 const DEFAULT = "01710" # Canoe Cove -- nearest station to the Bonshaw shore
 
 const STATIONS = [
-  {code: "01795", name: "Abegweit Passage", id: "5dd3064ee0fdc4b9b4be67d6"}
-  {code: "01838", name: "Abrams Village", id: "5dd3064ce0fdc4b9b4be65f9"}
-  {code: "01778", name: "Aggermore Point", id: "5dd3064ce0fdc4b9b4be65ef"}
-  {code: "01885", name: "Alberton", id: "5cebf1e33d0f4a073c4bc256"}
-  {code: "01654", name: "Annandale", id: "5dd30650e0fdc4b9b4be6bf7"}
-  {code: "01675", name: "Beach Point", id: "5dd3064ce0fdc4b9b4be65ec"}
-  {code: "01842", name: "Brae Harbour", id: "5dd3064ce0fdc4b9b4be65fa"}
-  {code: "01667", name: "Cahoon Wharf", id: "5dd3064fe0fdc4b9b4be6939"}
-  {code: "01710", name: "Canoe Cove", id: "5cebf1e33d0f4a073c4bc221"}
-  {code: "01800", name: "Cap Pelé", id: "5cebf1e33d0f4a073c4bc237"}
-  {code: "01835", name: "Cape Egmont", id: "5cebf1e33d0f4a073c4bc24c"}
-  {code: "01790", name: "Cape Tormentine", id: "5cebf1e33d0f4a073c4bc235"}
-  {code: "01658", name: "Cardigan", id: "5dd3064ce0fdc4b9b4be65e9"}
-  {code: "01700", name: "Charlottetown", id: "5cebf1e33d0f4a073c4bc21f"}
-  {code: "01918", name: "Covehead", id: "5dd3064ce0fdc4b9b4be6602"}
-  {code: "01925", name: "Crowbush Cove", id: "5cebf1e33d0f4a073c4bc25e"}
-  {code: "01907", name: "Darnley Bridge", id: "5dd3064ce0fdc4b9b4be65ff"}
-  {code: "01652", name: "Fortune Bay", id: "5dd3064ce0fdc4b9b4be65e7"}
-  {code: "01909", name: "French River North", id: "5dd3064ce0fdc4b9b4be6600"}
-  {code: "01660", name: "Georgetown", id: "5cebf1e33d0f4a073c4bc211"}
-  {code: "01896", name: "Goodwood River", id: "5cebf1e33d0f4a073c4bc258"}
-  {code: "01665", name: "Graham Pond", id: "5cebf1e33d0f4a073c4bc213"}
-  {code: "01801", name: "Harshmans Brook", id: "5dd3064ce0fdc4b9b4be65f1"}
-  {code: "01850", name: "Howards Cove", id: "5dd3064ce0fdc4b9b4be65fb"}
-  {code: "01876", name: "Judes Point", id: "5dd30650e0fdc4b9b4be6d42"}
-  {code: "01656", name: "Launching Pond", id: "5dd3064ce0fdc4b9b4be65e8"}
-  {code: "01669", name: "Machons Point", id: "5dd3064ce0fdc4b9b4be65eb"}
-  {code: "01905", name: "Malpeque", id: "5cebf1e33d0f4a073c4bc25a"}
-  {code: "01893", name: "Milligan's Wharf", id: "5dd3064ce0fdc4b9b4be65fe"}
-  {code: "01855", name: "Miminegash", id: "5cebf1e33d0f4a073c4bc250"}
-  {code: "01662", name: "Montague", id: "5cebf1e13d0f4a073c4bbefd"}
-  {code: "01797", name: "Murray Corner", id: "5dd3064ce0fdc4b9b4be65f0"}
-  {code: "01670", name: "Murray Harbour", id: "5cebf1e33d0f4a073c4bc215"}
-  {code: "01668", name: "Murray River", id: "5dd3064ce0fdc4b9b4be65ea"}
-  {code: "01945", name: "Naufrage", id: "5cebf1e33d0f4a073c4bc262"}
-  {code: "01706", name: "Nine Mile Creek", id: "5dd3064fe0fdc4b9b4be6a14"}
-  {code: "01955", name: "North Lake Harbour", id: "5cebf1e33d0f4a073c4bc264"}
-  {code: "01865", name: "North Point", id: "5cebf1e33d0f4a073c4bc252"}
-  {code: "01686", name: "Pinette", id: "5dd3064ce0fdc4b9b4be65ed"}
-  {code: "01690", name: "Point Prim", id: "5cebf1e33d0f4a073c4bc219"}
-  {code: "01725", name: "Port Borden", id: "5cebf1e33d0f4a073c4bc225"}
-  {code: "01785", name: "Port Elgin", id: "5cebf1e33d0f4a073c4bc233"}
-  {code: "01930", name: "Red Head Harbour", id: "5dd3064ce0fdc4b9b4be6603"}
-  {code: "01802", name: "Robichaud Wharf", id: "5dd3064ce0fdc4b9b4be65f2"}
-  {code: "01915", name: "Rustico", id: "5cebf1e33d0f4a073c4bc25c"}
-  {code: "01868", name: "Seacow Pond", id: "5dd3064ce0fdc4b9b4be65fc"}
-  {code: "01860", name: "Skinners Pond", id: "5cebf1e13d0f4a073c4bbf01"}
-  {code: "01650", name: "Souris", id: "5cebf1e33d0f4a073c4bc20f"}
-  {code: "01935", name: "St Peters Bay", id: "5cebf1e33d0f4a073c4bc260"}
-  {code: "01912", name: "Stanley Bridge", id: "5dd3064ce0fdc4b9b4be6601"}
-  {code: "01735", name: "Summerside", id: "5cebf1e33d0f4a073c4bc227"}
-  {code: "01780", name: "Tidnish", id: "5cebf1e33d0f4a073c4bc231"}
-  {code: "01875", name: "Tignish", id: "5cebf1e33d0f4a073c4bc254"}
-  {code: "01922", name: "Tracadie", id: "5dd3064fe0fdc4b9b4be693a"}
-  {code: "01715", name: "Victoria, PEI", id: "5cebf1e33d0f4a073c4bc223"}
-  {code: "01845", name: "West Point", id: "5cebf1e33d0f4a073c4bc24e"}
-  {code: "01680", name: "Wood Islands", id: "5cebf1e33d0f4a073c4bc217"}]
-
+  {code: "01795", name: "Abegweit Passage", id: "5dd3064ee0fdc4b9b4be67d6", lat: 46.166667, lon: -63.733333}
+  {code: "01838", name: "Abrams Village", id: "5dd3064ce0fdc4b9b4be65f9", lat: 46.433333, lon: -64.116667}
+  {code: "01778", name: "Aggermore Point", id: "5dd3064ce0fdc4b9b4be65ef", lat: 45.966667, lon: -63.883333}
+  {code: "01885", name: "Alberton", id: "5cebf1e33d0f4a073c4bc256", lat: 46.7951034, lon: -64.0582548}
+  {code: "01654", name: "Annandale", id: "5dd30650e0fdc4b9b4be6bf7", lat: 46.266667, lon: -62.433333}
+  {code: "01675", name: "Beach Point", id: "5dd3064ce0fdc4b9b4be65ec", lat: 46.016667, lon: -62.483333}
+  {code: "01842", name: "Brae Harbour", id: "5dd3064ce0fdc4b9b4be65fa", lat: 46.616667, lon: -64.2}
+  {code: "01667", name: "Cahoon Wharf", id: "5dd3064fe0fdc4b9b4be6939", lat: 46.05, lon: -62.55}
+  {code: "01710", name: "Canoe Cove", id: "5cebf1e33d0f4a073c4bc221", lat: 46.149224, lon: -63.303736}
+  {code: "01800", name: "Cap Pelé", id: "5cebf1e33d0f4a073c4bc237", lat: 46.235841, lon: -64.26127}
+  {code: "01835", name: "Cape Egmont", id: "5cebf1e33d0f4a073c4bc24c", lat: 46.408225, lon: -64.133638}
+  {code: "01790", name: "Cape Tormentine", id: "5cebf1e33d0f4a073c4bc235", lat: 46.134676, lon: -63.776757}
+  {code: "01658", name: "Cardigan", id: "5dd3064ce0fdc4b9b4be65e9", lat: 46.233333, lon: -62.616667}
+  {code: "01700", name: "Charlottetown", id: "5cebf1e33d0f4a073c4bc21f", lat: 46.23012108, lon: -63.1221766}
+  {code: "01918", name: "Covehead", id: "5dd3064ce0fdc4b9b4be6602", lat: 46.429035, lon: -63.146052}
+  {code: "01925", name: "Crowbush Cove", id: "5cebf1e33d0f4a073c4bc25e", lat: 46.4269503, lon: -62.8399476}
+  {code: "01907", name: "Darnley Bridge", id: "5dd3064ce0fdc4b9b4be65ff", lat: 46.533333, lon: -63.666667}
+  {code: "01652", name: "Fortune Bay", id: "5dd3064ce0fdc4b9b4be65e7", lat: 46.333333, lon: -62.35}
+  {code: "01909", name: "French River North", id: "5dd3064ce0fdc4b9b4be6600", lat: 46.516667, lon: -63.5}
+  {code: "01660", name: "Georgetown", id: "5cebf1e33d0f4a073c4bc211", lat: 46.17951, lon: -62.531618}
+  {code: "01896", name: "Goodwood River", id: "5cebf1e33d0f4a073c4bc258", lat: 46.616799, lon: -63.916607}
+  {code: "01665", name: "Graham Pond", id: "5cebf1e33d0f4a073c4bc213", lat: 46.095961, lon: -62.453698}
+  {code: "01801", name: "Harshmans Brook", id: "5dd3064ce0fdc4b9b4be65f1", lat: 46.233333, lon: -64.3}
+  {code: "01850", name: "Howards Cove", id: "5dd3064ce0fdc4b9b4be65fb", lat: 46.733333, lon: -64.383333}
+  {code: "01876", name: "Judes Point", id: "5dd30650e0fdc4b9b4be6d42", lat: 46.95, lon: -64.033333}
+  {code: "01656", name: "Launching Pond", id: "5dd3064ce0fdc4b9b4be65e8", lat: 46.216667, lon: -62.416667}
+  {code: "01669", name: "Machons Point", id: "5dd3064ce0fdc4b9b4be65eb", lat: 46.016667, lon: -62.516667}
+  {code: "01905", name: "Malpeque", id: "5cebf1e33d0f4a073c4bc25a", lat: 46.523993, lon: -63.696637}
+  {code: "01893", name: "Milligan's Wharf", id: "5dd3064ce0fdc4b9b4be65fe", lat: 46.65, lon: -63.916667}
+  {code: "01855", name: "Miminegash", id: "5cebf1e33d0f4a073c4bc250", lat: 46.88011, lon: -64.234435}
+  {code: "01662", name: "Montague", id: "5cebf1e13d0f4a073c4bbefd", lat: 46.164725, lon: -62.646332}
+  {code: "01797", name: "Murray Corner", id: "5dd3064ce0fdc4b9b4be65f0", lat: 46.166667, lon: -63.933333}
+  {code: "01670", name: "Murray Harbour", id: "5cebf1e33d0f4a073c4bc215", lat: 46.005478, lon: -62.523515}
+  {code: "01668", name: "Murray River", id: "5dd3064ce0fdc4b9b4be65ea", lat: 46.016667, lon: -62.616667}
+  {code: "01945", name: "Naufrage", id: "5cebf1e33d0f4a073c4bc262", lat: 46.468428, lon: -62.417173}
+  {code: "01706", name: "Nine Mile Creek", id: "5dd3064fe0fdc4b9b4be6a14", lat: 46.15, lon: -63.216667}
+  {code: "01955", name: "North Lake Harbour", id: "5cebf1e33d0f4a073c4bc264", lat: 46.4669804, lon: -62.06881902}
+  {code: "01865", name: "North Point", id: "5cebf1e33d0f4a073c4bc252", lat: 47.0581997, lon: -63.9960403}
+  {code: "01686", name: "Pinette", id: "5dd3064ce0fdc4b9b4be65ed", lat: 46.05, lon: -62.916667}
+  {code: "01690", name: "Point Prim", id: "5cebf1e33d0f4a073c4bc219", lat: 46.056251, lon: -63.030217}
+  {code: "01725", name: "Port Borden", id: "5cebf1e33d0f4a073c4bc225", lat: 46.246127, lon: -63.700721}
+  {code: "01785", name: "Port Elgin", id: "5cebf1e33d0f4a073c4bc233", lat: 46.051875, lon: -64.082768}
+  {code: "01930", name: "Red Head Harbour", id: "5dd3064ce0fdc4b9b4be6603", lat: 46.433333, lon: -62.716667}
+  {code: "01802", name: "Robichaud Wharf", id: "5dd3064ce0fdc4b9b4be65f2", lat: 46.223, lon: -64.383333}
+  {code: "01915", name: "Rustico", id: "5cebf1e33d0f4a073c4bc25c", lat: 46.4560018, lon: -63.2940585}
+  {code: "01868", name: "Seacow Pond", id: "5dd3064ce0fdc4b9b4be65fc", lat: 47.0300766, lon: -63.9910272}
+  {code: "01860", name: "Skinners Pond", id: "5cebf1e13d0f4a073c4bbf01", lat: 46.964224, lon: -64.122878}
+  {code: "01650", name: "Souris", id: "5cebf1e33d0f4a073c4bc20f", lat: 46.349625, lon: -62.251762}
+  {code: "01935", name: "St Peters Bay", id: "5cebf1e33d0f4a073c4bc260", lat: 46.43862, lon: -62.73313}
+  {code: "01912", name: "Stanley Bridge", id: "5dd3064ce0fdc4b9b4be6601", lat: 46.466667, lon: -63.466667}
+  {code: "01735", name: "Summerside", id: "5cebf1e33d0f4a073c4bc227", lat: 46.386486, lon: -63.789649}
+  {code: "01780", name: "Tidnish", id: "5cebf1e33d0f4a073c4bc231", lat: 45.997582, lon: -64.007441}
+  {code: "01875", name: "Tignish", id: "5cebf1e33d0f4a073c4bc254", lat: 46.950947, lon: -63.9938431}
+  {code: "01922", name: "Tracadie", id: "5dd3064fe0fdc4b9b4be693a", lat: 46.35, lon: -62.966667}
+  {code: "01715", name: "Victoria, PEI", id: "5cebf1e33d0f4a073c4bc223", lat: 46.212623, lon: -63.489466}
+  {code: "01845", name: "West Point", id: "5cebf1e33d0f4a073c4bc24e", lat: 46.620079, lon: -64.371788}
+  {code: "01680", name: "Wood Islands", id: "5cebf1e33d0f4a073c4bc217", lat: 45.952878, lon: -62.749395}
+]
 let TPL = .mj compile ($HERE | path join "templates" "tides.html")
+let MAPTPL = .mj compile ($HERE | path join "templates" "map.html")
 
 # in-memory day cache; recreated on handler reload
 try { stor create -t cache -c {k: str, v: str} } catch { }
@@ -259,6 +260,14 @@ def tides-context [code: string] {
       } else {
         $page
       }
+    })
+
+    (route {method: "GET", path: "/map"} {|req ctx|
+      let saved = ($req | cookie parse | get -o station | default $DEFAULT)
+      {
+        code: $saved
+        stations_json: ($STATIONS | select code name lat lon | to json -r)
+      } | .mj render $MAPTPL
     })
 
     (route {method: "GET", path: "/health"} {|req ctx| "ok" })

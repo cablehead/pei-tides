@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1b26">
+<title>PEI tide stations</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --ground:#0d1b26; --panel:#122434; --line:#1d3245;
+    --ink:#eaf1f6; --muted:#8ea3b4; --accent:#5fcfc0; --high:#7fb8ff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--ground);color:var(--ink);
+    font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+  #map{position:fixed;inset:0;background:var(--ground)}
+  .bar{
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:calc(.6rem + env(safe-area-inset-top)) 1rem .6rem;
+    background:linear-gradient(180deg,rgba(13,27,38,.92),rgba(13,27,38,0));
+    pointer-events:none;
+  }
+  .bar a,.bar .title{pointer-events:auto}
+  .bar a{color:var(--accent);text-decoration:none;font-weight:650}
+  .bar .title{color:var(--muted);font-size:.85rem}
+  .leaflet-popup-content-wrapper,.leaflet-popup-tip{
+    background:var(--panel);color:var(--ink);border:1px solid var(--line)}
+  .leaflet-popup-content{margin:.7rem .9rem;font:14px system-ui}
+  .leaflet-popup-content b{display:block;margin-bottom:.15rem}
+  .leaflet-popup-content a{color:var(--accent);font-weight:650;text-decoration:none}
+  .leaflet-container{font:12px system-ui}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="bar">
+  <a href="/">&larr; tides</a>
+  <span class="title">PEI tide stations</span>
+</div>
+<script type="application/json" id="stations">{{ stations_json|safe }}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const stations = JSON.parse(document.getElementById('stations').textContent);
+  const current = "{{ code }}";
+
+  const map = L.map('map', {zoomControl: false});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    maxZoom: 18,
+  }).addTo(map);
+
+  const bounds = [];
+  for (const s of stations) {
+    const selected = s.code === current;
+    L.circleMarker([s.lat, s.lon], {
+      radius: selected ? 9 : 6,
+      color: selected ? '#7fb8ff' : '#5fcfc0',
+      weight: 2,
+      fillColor: selected ? '#7fb8ff' : '#5fcfc0',
+      fillOpacity: selected ? 0.85 : 0.45,
+    })
+      .bindPopup(`<b>${s.name}</b><a href="/?s=${s.code}">set as my station</a>`)
+      .addTo(map);
+    bounds.push([s.lat, s.lon]);
+  }
+  map.fitBounds(bounds, {padding: [36, 36]});
+
+  // The viewer, when the browser will say (needs a secure context: https or
+  // a localhost tunnel). Denied or unavailable just means no dot.
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      const here = [pos.coords.latitude, pos.coords.longitude];
+      L.circle(here, {
+        radius: pos.coords.accuracy,
+        color: '#eaf1f6', weight: 1, opacity: 0.35, fillOpacity: 0.08,
+      }).addTo(map);
+      L.circleMarker(here, {
+        radius: 7, color: '#0d1b26', weight: 2,
+        fillColor: '#eaf1f6', fillOpacity: 1,
+      }).bindPopup('<b>you</b>').addTo(map);
+    }, () => {}, {enableHighAccuracy: true, timeout: 10000});
+  }
+</script>
+</body>
+</html>
