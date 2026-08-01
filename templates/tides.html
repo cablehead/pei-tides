@@ -12,12 +12,11 @@
     background:var(--panel);border:1px solid var(--line);border-radius:10px;
     padding:.6rem .8rem;appearance:none;-webkit-appearance:none}
 
-  .hero{display:flex;flex-direction:column;gap:.15rem;padding:.3rem .15rem 0}
+  .hero{display:flex;flex-direction:column;gap:.15rem;padding:.3rem var(--gutter) 0}
   .hero h1{font-size:clamp(2.6rem,14vw,3.4rem);line-height:1.05;letter-spacing:-.02em}
   .times{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
 
-  .chart{background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:.9rem .9rem .6rem}
+  .chart{padding:.9rem var(--gutter) .6rem}
   .chart svg{display:block;width:100%;height:150px}
   .chart .area{fill:rgba(95,207,192,.14)}
   .chart .curve{stroke:var(--accent);stroke-width:3;fill:none;stroke-linecap:round}
@@ -27,7 +26,7 @@
   .axis{display:flex;justify-content:space-between;padding:.45rem .1rem 0}
   .axis small{opacity:.7}
 
-  .today{display:flex;gap:.6rem}
+  .today{display:flex;gap:.6rem;padding-inline:var(--gutter)}
   .chip{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;
     padding:.55rem .25rem;display:flex;flex-direction:column;align-items:center;gap:.05rem}
   .chip b{white-space:nowrap}
@@ -35,20 +34,13 @@
 
   /* 7-day table: day label + one column per tide of the day, so the k-th
      tide lines up down the page. cells stack time over height. */
-  .week h2{margin:0 0 .5rem .15rem}
+  .week h2{margin:0 0 .5rem var(--gutter)}
   .day{display:grid;grid-template-columns:4.6rem repeat(4,1fr);gap:0 .5rem;
-    padding:.55rem .15rem;border-top:1px solid var(--line);align-items:baseline}
-  .day.today{background:linear-gradient(90deg,rgba(95,207,192,.07),transparent);
-    border-radius:8px}
+    padding:.55rem var(--gutter);border-top:1px solid var(--line);align-items:baseline}
+  .day.today{background:linear-gradient(90deg,rgba(95,207,192,.07),transparent)}
   .day.today > small{color:var(--accent);font-weight:650}
   .cell{display:flex;flex-direction:column}
   .cell b{white-space:nowrap}
-
-  @media (max-width:639px){
-    .chart{border-inline:0;border-radius:0}
-    .week h2{margin-left:var(--gutter)}
-    .day{padding-inline:var(--gutter)}
-  }
 </style>
 </head>
 <body data-init="@get('/sse?s={{ code }}')">
@@ -67,7 +59,7 @@
 
   {{ live|safe }}
 
-  <section class="week bleed">
+  <section class="week">
     <h2>next 7 days &middot; m</h2>
     {% for d in days %}
     <div class="day{% if d.today %} today{% endif %}">

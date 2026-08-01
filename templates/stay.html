@@ -8,12 +8,12 @@
 <link rel="stylesheet" href="/style.css">
 <style>
   .cards{display:flex;flex-direction:column;gap:1.1rem}
-  figure{margin:0;background:var(--panel);border:1px solid var(--line);
-    border-radius:14px;overflow:hidden;scroll-margin-top:1rem}
+  .cards > small{padding-inline:var(--gutter)}
+  figure{margin:0;overflow:hidden;scroll-margin-top:1rem}
   figure img{display:block;width:100%;height:auto}
-  figcaption{padding:.7rem .9rem .8rem;display:flex;flex-direction:column;gap:.1rem}
+  figcaption{padding:.7rem var(--gutter) .8rem;display:flex;flex-direction:column;gap:.1rem}
 
-  .days{display:flex;flex-direction:column;gap:.15rem}
+  .days{display:flex;flex-direction:column;gap:.15rem;padding-inline:var(--gutter)}
   .drow{display:grid;grid-template-columns:3.4rem 1fr;gap:.6rem;
     align-items:center;scroll-margin-top:1rem}
   .drow.today small{color:var(--accent);font-weight:650}
@@ -21,12 +21,6 @@
     border:1px solid var(--line);border-radius:8px}
   .drow .curve{stroke:var(--accent);stroke-width:2;fill:none;opacity:.8}
   .drow .pdot{fill:var(--photo);stroke:var(--ground);stroke-width:2}
-
-  @media (max-width:639px){
-    figure{border-inline:0;border-radius:0}
-    .drow{padding-left:var(--gutter)}
-    .drow svg{border-right:0;border-radius:8px 0 0 8px}
-  }
 </style>
 </head>
 <body>
@@ -39,12 +33,12 @@
     </p>
   </header>
 
-  <section class="cards bleed">
+  <section class="cards">
     {% if not photos %}
     <small>no photos yet -- ingest with: nu tools/ingest.nu &lt;originals&gt;</small>
     {% endif %}
     {% for p in photos %}
-    <figure id="p-{{ p.stem }}">
+    <figure class="panel" id="p-{{ p.stem }}">
       <img src="/photos/{{ p.file }}" loading="lazy" alt="beach at {{ p.height }} m">
       <figcaption>
         <b>{{ p.height }} m &middot; <span class="{{ p.phase }}">{{ p.phase }}</span></b>
@@ -55,7 +49,7 @@
     {% endfor %}
   </section>
 
-  <section class="days bleed" aria-label="each day's curve, dots are photos">
+  <section class="days" aria-label="each day's curve, dots are photos">
     {% for d in days %}
     <div class="drow{% if d.today %} today{% endif %}" id="d-{{ loop.index0 }}">
       <small>{{ d.label }}</small>

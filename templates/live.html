@@ -9,7 +9,7 @@
 </section>
 {% endif %}
 
-<section class="chart bleed" id="chart" aria-label="today's tide curve">
+<section class="chart panel" id="chart" aria-label="today's tide curve">
   <svg viewBox="0 0 720 240" preserveAspectRatio="none" role="img">
     <path class="area" d="{{ svg.area }}"/>
     <path class="curve" d="{{ svg.line }}"/>
@@ -22,7 +22,7 @@
   <div class="axis"><small>midnight</small><small>noon</small><small>midnight</small></div>
 </section>
 
-<section class="today bleed" id="strip" aria-label="recent and upcoming tides">
+<section class="today" id="strip" aria-label="recent and upcoming tides">
   {% for e in strip %}
   <div class="chip{% if e.past %} past{% endif %}">
     <span class="label {{ e.kind }}">{{ e.kind }}</span>
