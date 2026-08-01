@@ -109,6 +109,11 @@ def fmt-time []: datetime -> string {
   $in | date to-timezone $TZ | format date "%-I:%M %P"
 }
 
+# compact form for the 7-day table, where columns are narrow
+def fmt-time-short []: datetime -> string {
+  $in | date to-timezone $TZ | format date "%-I:%M%P"
+}
+
 def fmt-height [v: float] {
   $"($v | math round --precision 1) m"
 }
@@ -192,6 +197,7 @@ def tides-context [code: string] {
     station: $station.name
     stations: $STATIONS
     date_label: ($now | format date "%A, %B %-d")
+    now_time: ($now | fmt-time)
     updated: ($now | fmt-time)
     trend: $trend
     rate: $rate
@@ -218,8 +224,8 @@ def tides-context [code: string] {
           today: ($g.d == $today)
           events: ($g.evs | each {|e| {
             kind: $e.kind
-            time: ($e.t | fmt-time)
-            height: (fmt-height $e.v)
+            time: ($e.t | fmt-time-short)
+            height: ($e.v | math round --precision 1)
           }})
         }})
     svg: {

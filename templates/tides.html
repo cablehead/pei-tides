@@ -8,36 +8,47 @@
 <style>
   :root{
     --ground:#0d1b26; --panel:#122434; --line:#1d3245;
-    --ink:#eaf1f6; --muted:#8ea3b4; --faint:#5b6f80;
+    --ink:#eaf1f6; --muted:#8ea3b4;
     --accent:#5fcfc0; --high:#7fb8ff; --low:#e2b06a;
   }
   *{box-sizing:border-box}
   html,body{margin:0}
+
+  /* type primitives: everything on the page composes from these.
+     sizes: h1 (display) / base / small / h2+.label (caps eyebrow).
+     weights: 400 and 650. numerals tabular throughout. */
   body{
     background:var(--ground); color:var(--ink);
-    font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
+    font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-variant-numeric:tabular-nums;
     padding:env(safe-area-inset-top) env(safe-area-inset-right)
             env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
+  h1{font-size:clamp(2.6rem,14vw,3.4rem);font-weight:650;line-height:1.05;
+    letter-spacing:-.02em;margin:0}
+  h2,.label{font-size:.75rem;font-weight:650;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);margin:0}
+  p{margin:0}
+  small{font-size:.85rem;color:var(--muted)}
+  b{font-weight:650}
+  a{color:var(--accent);font-weight:650;text-decoration:none}
+
+  /* the only other color channel: tide kind */
+  .high,.rising{color:var(--high)}
+  .low,.falling{color:var(--low)}
+
+  /* layout */
   .wrap{max-width:27rem;margin:0 auto;padding:1rem 1.1rem 2.5rem;
     display:flex;flex-direction:column;gap:1.4rem}
 
-  header{display:flex;flex-direction:column;gap:.35rem}
-  select{
-    width:100%;font:600 18px system-ui;color:var(--ink);
+  header{display:flex;flex-direction:column;gap:.4rem}
+  select{width:100%;font:inherit;font-weight:650;color:var(--ink);
     background:var(--panel);border:1px solid var(--line);border-radius:10px;
-    padding:.6rem .8rem;appearance:none;-webkit-appearance:none;
-  }
+    padding:.6rem .8rem;appearance:none;-webkit-appearance:none}
   .sub{display:flex;justify-content:space-between;align-items:baseline;padding:0 .15rem}
-  .date{color:var(--muted);font-size:.85rem}
-  .maplink{color:var(--accent);font-size:.85rem;font-weight:650;text-decoration:none}
 
-  .hero{display:flex;flex-direction:column;gap:.1rem;padding:.4rem .15rem 0}
-  .hero .trend{font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
-  .hero .trend.rising{color:var(--high)} .hero .trend.falling{color:var(--low)}
-  .hero .time{font-size:clamp(3rem,16vw,4.1rem);font-weight:700;line-height:1.05;
-    font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-  .hero .in{color:var(--muted);font-size:1rem}
+  .hero{display:flex;flex-direction:column;gap:.15rem;padding:.3rem .15rem 0}
+  .times{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
 
   .chart{background:var(--panel);border:1px solid var(--line);border-radius:14px;
     padding:.9rem .9rem .6rem}
@@ -47,35 +58,30 @@
   .chart .nowline{stroke:rgba(234,241,246,.28);stroke-width:1.5;stroke-dasharray:3 4}
   .chart .nowdot{fill:var(--ink);stroke:var(--ground);stroke-width:3}
   .chart .dot.high{fill:var(--high)} .chart .dot.low{fill:var(--low)}
-  .axis{display:flex;justify-content:space-between;color:var(--faint);
-    font-size:.7rem;padding:.45rem .1rem 0}
+  .axis{display:flex;justify-content:space-between;padding:.45rem .1rem 0}
+  .axis small{opacity:.7}
 
   .today{display:flex;gap:.6rem}
   .chip{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;
     padding:.55rem .25rem;display:flex;flex-direction:column;align-items:center;gap:.05rem}
-  .chip .k{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
-  .chip.high .k{color:var(--high)} .chip.low .k{color:var(--low)}
-  .chip .t{font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:.95rem}
-  .chip .h{color:var(--muted);font-size:.78rem}
+  .chip b{white-space:nowrap}
   .chip.past{opacity:.42}
 
-  .week{display:flex;flex-direction:column}
-  .week h2{font-size:.8rem;color:var(--muted);font-weight:600;
-    letter-spacing:.1em;text-transform:uppercase;margin:0 0 .5rem .15rem}
-  .day{display:flex;gap:.8rem;padding:.55rem .15rem;border-top:1px solid var(--line);
-    align-items:baseline}
+  /* 7-day table: day label + one column per tide of the day, so the k-th
+     tide lines up down the page. cells stack time over height. */
+  .week h2{margin:0 0 .5rem .15rem}
+  .day{display:grid;grid-template-columns:4.6rem repeat(4,1fr);gap:0 .5rem;
+    padding:.55rem .15rem;border-top:1px solid var(--line);align-items:baseline}
   .day.today{background:linear-gradient(90deg,rgba(95,207,192,.07),transparent);
     border-radius:8px}
-  .dlabel{flex:0 0 5.2rem;color:var(--muted);font-size:.85rem}
-  .day.today .dlabel{color:var(--accent);font-weight:650}
-  .devents{display:flex;flex-wrap:wrap;gap:.35rem .9rem;font-variant-numeric:tabular-nums}
-  .ev{font-size:.9rem;white-space:nowrap}
-  .ev b{font-weight:650}
-  .ev .m{color:var(--faint);font-size:.78rem}
-  .ev.high b{color:var(--high)} .ev.low b{color:var(--low)}
+  .day.today > small{color:var(--accent);font-weight:650}
+  .cell{display:flex;flex-direction:column}
+  .cell b{white-space:nowrap}
 
-  footer{color:var(--faint);font-size:.72rem;text-align:center;line-height:1.6}
-  footer a{color:var(--muted);text-decoration-color:var(--line)}
+  footer{text-align:center;line-height:1.6}
+  footer small{opacity:.8}
+  footer a{color:var(--muted);text-decoration:underline;
+    text-decoration-color:var(--line);font-weight:400}
 </style>
 </head>
 <body>
@@ -89,17 +95,17 @@
       </select>
       <noscript><button>go</button></noscript>
     </form>
-    <div class="sub">
-      <span class="date">{{ date_label }}</span>
-      <a class="maplink" href="/map">map</a>
-    </div>
+    <p class="sub"><small>{{ date_label }}</small><a href="/map">map</a></p>
   </header>
 
   {% if next %}
   <section class="hero">
-    <div class="trend {{ trend }}">{{ trend }}{% if rate %} &middot; {{ rate }}{% endif %}</div>
-    <div class="time">{{ next.time }}</div>
-    <div class="in">{{ next.kind }} in {{ next.in }} &middot; {{ next.height }}</div>
+    <span class="label {{ trend }}">{{ trend }}{% if rate %} &middot; {{ rate }}{% endif %}</span>
+    <div class="times">
+      <h1>{{ next.time }}</h1>
+      <small>now {{ now_time }}</small>
+    </div>
+    <p><b class="{{ next.kind }}">{{ next.kind }}</b> in {{ next.in }} &middot; {{ next.height }}</p>
   </section>
   {% endif %}
 
@@ -113,37 +119,40 @@
       {% endfor %}
       <circle class="nowdot" cx="{{ svg.now_x }}" cy="{{ svg.now_y }}" r="6"/>
     </svg>
-    <div class="axis"><span>midnight</span><span>noon</span><span>midnight</span></div>
+    <div class="axis"><small>midnight</small><small>noon</small><small>midnight</small></div>
   </section>
 
   <section class="today" aria-label="today's tides">
     {% for e in today %}
-    <div class="chip {{ e.kind }}{% if e.past %} past{% endif %}">
-      <span class="k">{{ e.kind }}</span>
-      <span class="t">{{ e.time }}</span>
-      <span class="h">{{ e.height }}</span>
+    <div class="chip{% if e.past %} past{% endif %}">
+      <span class="label {{ e.kind }}">{{ e.kind }}</span>
+      <b>{{ e.time }}</b>
+      <small>{{ e.height }}</small>
     </div>
     {% endfor %}
   </section>
 
   <section class="week">
-    <h2>next 7 days</h2>
+    <h2>next 7 days &middot; m</h2>
     {% for d in days %}
     <div class="day{% if d.today %} today{% endif %}">
-      <div class="dlabel">{{ d.label }}</div>
-      <div class="devents">
-        {% for e in d.events %}
-        <span class="ev {{ e.kind }}"><b>{{ e.time }}</b> <span class="m">{{ e.height }}</span></span>
-        {% endfor %}
+      <small>{{ d.label }}</small>
+      {% for e in d.events %}
+      <div class="cell">
+        <b class="{{ e.kind }}">{{ e.time }}</b>
+        <small>{{ e.height }}</small>
       </div>
+      {% endfor %}
     </div>
     {% endfor %}
   </section>
 
   <footer>
-    <a href="https://www.tides.gc.ca/en/stations/{{ code }}">CHS predictions</a>,
-    heights above chart datum<br>
-    {{ station }} &middot; updated {{ updated }}
+    <small>
+      <a href="https://www.tides.gc.ca/en/stations/{{ code }}">CHS predictions</a>,
+      heights above chart datum<br>
+      {{ station }} &middot; updated {{ updated }}
+    </small>
   </footer>
 </div>
 </body>
