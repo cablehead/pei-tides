@@ -445,7 +445,7 @@ def tides-context [code: string] {
 
     # The explainer: markdown rendered by the built-in .md, in the shared shell.
     (route {method: "GET", path: "/moon"} {|req ctx|
-      let body = (open ($HERE | path join "moon.md") | .md | get __html)
+      let body = (open --raw ($HERE | path join "moon.md") | .md | get __html)
       $"<!doctype html><html lang=en><head><meta charset=utf-8>
 <meta name=viewport content='width=device-width, initial-scale=1, viewport-fit=cover'>
 <meta name=theme-color content='#0d1b26'><title>the moon and our tides</title>
