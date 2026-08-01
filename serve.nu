@@ -133,6 +133,17 @@ def fmt-dur [d: duration] {
 # (context for photo annotation); the page shows just the trip.
 const STAY = {from: "2026-07-31", nights: 8}
 
+# svg path for the lit part of a moon disc: outer limb (right when waxing,
+# left when waning) plus an elliptical terminator whose width follows the
+# illuminated fraction
+def phase-path [cx: float, cy: float, r: float, frac: float, waxing: bool] {
+  let a = ((($frac * 2) - 1) | math abs) * $r
+  let big = ($frac >= 0.5)
+  let limb = if $waxing { 1 } else { 0 }
+  let term = if $waxing { if $big { 1 } else { 0 } } else { if $big { 0 } else { 1 } }
+  $"M ($cx),($cy - $r) A ($r),($r) 0 0,($limb) ($cx),($cy + $r) A ($a | math round --precision 2),($r) 0 0,($term) ($cx),($cy - $r) Z"
+}
+
 # The stay page: one row per trip day (curve averaged across the two
 # home-beach stations), photo dots placed at their captured moment, and a
 # card per photo. All data is static files in data/ and photos/.
@@ -189,6 +200,30 @@ def stay-context [] {
       }
     })
 
+  # moon band: declination trace + one phase disc per day (see tools/moon.nu)
+  let moon = (if (($HERE | path join "data" "moon.json") | path exists) {
+    let m = (open ($HERE | path join "data" "moon.json"))
+    let end = ($start + ($ndays * 1day))
+    {
+      points: ($m.decl
+        | each {|p| $p | update t ($p.t | into datetime) }
+        | where t >= $start and t <= $end
+        | each {|p|
+          let x = ((($p.t - $start) / 1day) * $day_w | math round --precision 1)
+          # +-30 degrees maps to a 24px band around the y=42 zero line
+          $"($x),((42 - $p.deg * 0.4) | math round --precision 1)"
+        }
+        | str join " ")
+      discs: ($m.days
+        | each {|d| $d | update t ($d.t | into datetime) }
+        | where t >= $start and t < $end
+        | each {|d|
+          let cx = ((($d.t - $start) / 1day) * $day_w | math round --precision 1)
+          {cx: $cx, path: (phase-path $cx 14 8 $d.frac $d.waxing)}
+        })
+    }
+  } else { null })
+
   let strip = {
     w: ($ndays * $day_w)
     h: $h
@@ -213,6 +248,7 @@ def stay-context [] {
     range_label: ($"($start | date to-timezone $TZ | format date '%b %-d') - (($start + (($ndays - 1) * 1day)) | date to-timezone $TZ | format date '%b %-d')")
     station_label: (if ($snaps | length) == 2 { "two-station midpoint" } else { $a.station.name })
     strip: $strip
+    moon: $moon
     day_w: $day_w
     photos: ($photos | each {|p| {
       stem: ($p.file | path parse | get stem)

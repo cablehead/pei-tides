@@ -25,6 +25,10 @@
   .strip .curve{stroke:var(--accent);stroke-width:2;fill:none;opacity:.8}
   .strip .nowline{stroke:rgba(234,241,246,.28);stroke-width:1.5;stroke-dasharray:3 4}
   .strip .pdot{fill:var(--photo);stroke:var(--ground);stroke-width:2}
+  .strip .zero{stroke:var(--line);stroke-dasharray:2 4}
+  .strip .decl{fill:none;stroke:var(--muted);stroke-width:1.5;opacity:.7}
+  .strip .mbase{fill:var(--ground);stroke:var(--muted);stroke-width:1}
+  .strip .mlit{fill:var(--ink)}
 </style>
 </head>
 <body>
@@ -37,23 +41,17 @@
     </p>
   </header>
 
-  <section class="cards">
-    {% if not photos %}
-    <small>no photos yet -- ingest with: nu tools/ingest.nu &lt;originals&gt;</small>
-    {% endif %}
-    {% for p in photos %}
-    <figure class="panel" id="p-{{ p.stem }}">
-      <img src="/photos/{{ p.file }}" loading="lazy" alt="beach at {{ p.height }} m">
-      <figcaption>
-        <b>{{ p.height }} m &middot; <span class="{{ p.phase }}">{{ p.phase }}</span></b>
-        <small><a href="#days" data-day="{{ p.day }}">{{ p.when }}</a></small>
-        <small>{{ p.between }}</small>
-      </figcaption>
-    </figure>
-    {% endfor %}
-  </section>
-
   <section class="strip panel" id="days" aria-label="the trip's tide curve, dots are photos">
+    {% if moon %}
+    <svg width="{{ strip.w }}" height="56">
+      <line class="zero" x1="0" y1="42" x2="{{ strip.w }}" y2="42"/>
+      <polyline class="decl" points="{{ moon.points }}"/>
+      {% for m in moon.discs %}
+      <circle class="mbase" cx="{{ m.cx }}" cy="14" r="8"/>
+      <path class="mlit" d="{{ m.path }}"/>
+      {% endfor %}
+    </svg>
+    {% endif %}
     <svg width="{{ strip.w }}" height="{{ strip.h }}">
       {% for d in strip.days %}
       <line class="grid" x1="{{ d.x - 8 }}" y1="0" x2="{{ d.x - 8 }}" y2="{{ strip.h }}"/>
@@ -72,6 +70,22 @@
       {% endfor %}
     </svg>
   </section>
+
+  <section class="cards">
+    {% if not photos %}
+    <small>no photos yet -- ingest with: nu tools/ingest.nu &lt;originals&gt;</small>
+    {% endif %}
+    {% for p in photos %}
+    <figure class="panel" id="p-{{ p.stem }}">
+      <img src="/photos/{{ p.file }}" loading="lazy" alt="beach at {{ p.height }} m">
+      <figcaption>
+        <b>{{ p.height }} m &middot; <span class="{{ p.phase }}">{{ p.phase }}</span></b>
+        <small><a href="#days" data-day="{{ p.day }}">{{ p.when }}</a></small>
+        <small>{{ p.between }}</small>
+      </figcaption>
+    </figure>
+    {% endfor %}
+  </section>
   <script>
     const strip = document.getElementById('days');
     const scrollTo = d => strip.scrollTo({left: d * {{ day_w }} - 20, behavior: 'smooth'});
@@ -80,7 +94,8 @@
     {% if strip.now_x %}strip.scrollLeft = {{ strip.now_x }} - 60;{% endif %}
   </script>
 
-  <footer><small>heights above chart datum, midpoint of Canoe Cove and Victoria</small></footer>
+  <footer><small>heights above chart datum, midpoint of Canoe Cove and Victoria<br>
+    above the curve: moon phase and declination (dotted line is the equator)</small></footer>
 </div>
 </body>
 </html>
