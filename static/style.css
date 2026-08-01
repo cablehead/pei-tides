@@ -6,7 +6,7 @@
 :root{
   --ground:#0d1b26; --panel:#122434; --line:#1d3245;
   --ink:#eaf1f6; --muted:#8ea3b4;
-  --accent:#5fcfc0; --high:#7fb8ff; --low:#e2b06a; --photo:#ffb85c;
+  --accent:#5fcfc0; --high:#7fb8ff; --low:#e2b06a; --photo:#ff7eb6;
   --gutter:1.1rem;
 }
 *{box-sizing:border-box}
