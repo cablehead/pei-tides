@@ -128,7 +128,12 @@ def fmt-dur [d: duration] {
   if $h > 0 { $"($h)h ($m)m" } else { $"($m)m" }
 }
 
-# The stay page: one row per snapshot day (curve averaged across the two
+# The stay: Friday July 31 for 8 nights, so rows run Jul 31 through the
+# Aug 8 checkout morning. The snapshots in data/ are deliberately wider
+# (context for photo annotation); the page shows just the trip.
+const STAY = {from: "2026-07-31", nights: 8}
+
+# The stay page: one row per trip day (curve averaged across the two
 # home-beach stations), photo dots placed at their captured moment, and a
 # card per photo. All data is static files in data/ and photos/.
 def stay-context [] {
@@ -139,7 +144,9 @@ def stay-context [] {
   let b = ($snaps | get -o 1 | default $snaps.0)
   let vals = ($a.curve | zip $b.curve | each {|p| ($p.0.v + $p.1.v) / 2 })
   let from = ($a.from | into datetime)
-  let ndays = ((($a.to | into datetime) - $from) / 1day | math round)
+  let off = (date now | date to-timezone $TZ | format date "%:z")
+  let start = ($"($STAY.from)T00:00:00($off)" | into datetime)
+  let ndays = ($STAY.nights + 1)
 
   let photos = (if (($HERE | path join "data" "photos.json") | path exists) {
     open ($HERE | path join "data" "photos.json")
@@ -152,10 +159,11 @@ def stay-context [] {
   let today = (date now | date to-timezone $TZ | format date "%Y-%m-%d")
 
   let days = (0..($ndays - 1) | each {|i|
-    let day_start = ($from + ($i * 1day))
+    let day_start = ($start + ($i * 1day))
+    let base = ((($day_start - $from) / 5min) | math round)
     # 288 5-min points per day; every 3rd -> 15-min rows, +1 to reach midnight
     let pts = (0..96 | each {|j|
-      let idx = ([($i * 288 + $j * 3) (($vals | length) - 1)] | math min)
+      let idx = ([($base + $j * 3) (($vals | length) - 1)] | math min)
       let x = ($j / 96 * 720 | math round --precision 1)
       $"($x),(do $sy ($vals | get $idx))"
     })
@@ -177,13 +185,13 @@ def stay-context [] {
   })
 
   {
-    range_label: ($"($from | date to-timezone $TZ | format date '%b %-d') - (($from + (($ndays - 1) * 1day)) | date to-timezone $TZ | format date '%b %-d')")
+    range_label: ($"($start | date to-timezone $TZ | format date '%b %-d') - (($start + (($ndays - 1) * 1day)) | date to-timezone $TZ | format date '%b %-d')")
     station_label: (if ($snaps | length) == 2 { "two-station midpoint" } else { $a.station.name })
     days: $days
     photos: ($photos | each {|p| {
       stem: ($p.file | path parse | get stem)
       file: $p.file
-      day: ((($p.taken | into datetime) - $from) / 1day | math floor)
+      day: ((($p.taken | into datetime) - $start) / 1day | math floor)
       height: $p.height
       phase: $p.phase
       when: ($p.taken | into datetime | date to-timezone $TZ | format date "%A %B %-d, %-I:%M %P")
