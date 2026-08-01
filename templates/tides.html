@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1b26">
+<meta http-equiv="refresh" content="600">
+<title>{{ station }} tides</title>
+<style>
+  :root{
+    --ground:#0d1b26; --panel:#122434; --line:#1d3245;
+    --ink:#eaf1f6; --muted:#8ea3b4; --faint:#5b6f80;
+    --accent:#5fcfc0; --high:#7fb8ff; --low:#e2b06a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--ground); color:var(--ink);
+    font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right)
+            env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap{max-width:27rem;margin:0 auto;padding:1rem 1.1rem 2.5rem;
+    display:flex;flex-direction:column;gap:1.4rem}
+
+  header{display:flex;flex-direction:column;gap:.35rem}
+  select{
+    width:100%;font:600 18px system-ui;color:var(--ink);
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:.6rem .8rem;appearance:none;-webkit-appearance:none;
+  }
+  .date{color:var(--muted);font-size:.85rem;padding-left:.15rem}
+
+  .hero{display:flex;flex-direction:column;gap:.1rem;padding:.4rem .15rem 0}
+  .hero .kind{font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+  .hero .kind.high{color:var(--high)} .hero .kind.low{color:var(--low)}
+  .hero .time{font-size:clamp(3rem,16vw,4.1rem);font-weight:700;line-height:1.05;
+    font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .hero .in{color:var(--muted);font-size:1rem}
+
+  .chart{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:.9rem .9rem .6rem}
+  .chart svg{display:block;width:100%;height:150px}
+  .chart .area{fill:rgba(95,207,192,.14)}
+  .chart .curve{stroke:var(--accent);stroke-width:3;fill:none;stroke-linecap:round}
+  .chart .nowline{stroke:rgba(234,241,246,.28);stroke-width:1.5;stroke-dasharray:3 4}
+  .chart .nowdot{fill:var(--ink);stroke:var(--ground);stroke-width:3}
+  .chart .dot.high{fill:var(--high)} .chart .dot.low{fill:var(--low)}
+  .axis{display:flex;justify-content:space-between;color:var(--faint);
+    font-size:.7rem;padding:.45rem .1rem 0}
+
+  .today{display:flex;gap:.6rem}
+  .chip{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:.55rem .25rem;display:flex;flex-direction:column;align-items:center;gap:.05rem}
+  .chip .k{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+  .chip.high .k{color:var(--high)} .chip.low .k{color:var(--low)}
+  .chip .t{font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:.95rem}
+  .chip .h{color:var(--muted);font-size:.78rem}
+  .chip.past{opacity:.42}
+
+  .week{display:flex;flex-direction:column}
+  .week h2{font-size:.8rem;color:var(--muted);font-weight:600;
+    letter-spacing:.1em;text-transform:uppercase;margin:0 0 .5rem .15rem}
+  .day{display:flex;gap:.8rem;padding:.55rem .15rem;border-top:1px solid var(--line);
+    align-items:baseline}
+  .day.today{background:linear-gradient(90deg,rgba(95,207,192,.07),transparent);
+    border-radius:8px}
+  .dlabel{flex:0 0 5.2rem;color:var(--muted);font-size:.85rem}
+  .day.today .dlabel{color:var(--accent);font-weight:650}
+  .devents{display:flex;flex-wrap:wrap;gap:.35rem .9rem;font-variant-numeric:tabular-nums}
+  .ev{font-size:.9rem;white-space:nowrap}
+  .ev b{font-weight:650}
+  .ev .m{color:var(--faint);font-size:.78rem}
+  .ev.high b{color:var(--high)} .ev.low b{color:var(--low)}
+
+  footer{color:var(--faint);font-size:.72rem;text-align:center;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <form method="get">
+      <select name="s" onchange="this.form.submit()" aria-label="tide station">
+        {% for st in stations %}
+        <option value="{{ st.code }}"{% if st.code == code %} selected{% endif %}>{{ st.name }}</option>
+        {% endfor %}
+      </select>
+      <noscript><button>go</button></noscript>
+    </form>
+    <div class="date">{{ date_label }}</div>
+  </header>
+
+  {% if next %}
+  <section class="hero">
+    <div class="kind {{ next.kind }}">{{ next.kind }} tide</div>
+    <div class="time">{{ next.time }}</div>
+    <div class="in">in {{ next.in }} &middot; {{ next.height }}</div>
+  </section>
+  {% endif %}
+
+  <section class="chart" aria-label="today's tide curve">
+    <svg viewBox="0 0 720 240" preserveAspectRatio="none" role="img">
+      <path class="area" d="{{ svg.area }}"/>
+      <path class="curve" d="{{ svg.line }}"/>
+      <line class="nowline" x1="{{ svg.now_x }}" y1="0" x2="{{ svg.now_x }}" y2="240"/>
+      {% for d in svg.dots %}
+      <circle class="dot {{ d.kind }}" cx="{{ d.x }}" cy="{{ d.y }}" r="5"/>
+      {% endfor %}
+      <circle class="nowdot" cx="{{ svg.now_x }}" cy="{{ svg.now_y }}" r="6"/>
+    </svg>
+    <div class="axis"><span>midnight</span><span>noon</span><span>midnight</span></div>
+  </section>
+
+  <section class="today" aria-label="today's tides">
+    {% for e in today %}
+    <div class="chip {{ e.kind }}{% if e.past %} past{% endif %}">
+      <span class="k">{{ e.kind }}</span>
+      <span class="t">{{ e.time }}</span>
+      <span class="h">{{ e.height }}</span>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section class="week">
+    <h2>next 7 days</h2>
+    {% for d in days %}
+    <div class="day{% if d.today %} today{% endif %}">
+      <div class="dlabel">{{ d.label }}</div>
+      <div class="devents">
+        {% for e in d.events %}
+        <span class="ev {{ e.kind }}"><b>{{ e.time }}</b> <span class="m">{{ e.height }}</span></span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+
+  <footer>
+    CHS predictions, heights above chart datum<br>
+    {{ station }} &middot; updated {{ updated }}
+  </footer>
+</div>
+</body>
+</html>
