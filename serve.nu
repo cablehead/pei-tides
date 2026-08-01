@@ -443,6 +443,18 @@ def tides-context [code: string] {
       | metadata set --content-type "text/event-stream"
     })
 
+    # The explainer: markdown rendered by the built-in .md, in the shared shell.
+    (route {method: "GET", path: "/moon"} {|req ctx|
+      let body = (open ($HERE | path join "moon.md") | .md | get __html)
+      $"<!doctype html><html lang=en><head><meta charset=utf-8>
+<meta name=viewport content='width=device-width, initial-scale=1, viewport-fit=cover'>
+<meta name=theme-color content='#0d1b26'><title>the moon and our tides</title>
+<link rel=stylesheet href=/style.css></head><body><div class=wrap>
+<header><p class=sub><small>for curious beach people</small><a href='/stay'>&larr; the stay</a></p></header>
+<article>($body)</article>
+</div></body></html>"
+    })
+
     (route {method: "GET", path: "/style.css"} {|req ctx|
       .static ($HERE | path join "static") "/style.css"
     })

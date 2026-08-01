@@ -38,3 +38,7 @@ footer{text-align:center;line-height:1.6}
 footer small{opacity:.8}
 footer a{color:var(--muted);font-weight:400;
   text-decoration:underline;text-decoration-color:var(--line)}
+
+/* longform markdown (the /moon explainer) */
+article{padding-inline:var(--gutter);display:flex;flex-direction:column;gap:.8rem}
+article h2{margin-top:.6rem}

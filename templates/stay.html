@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#0d1b26">
 <title>the stay &middot; tides</title>
 <link rel="stylesheet" href="/style.css">
+<script src="https://cdn.jsdelivr.net/npm/iconify-icon@2/dist/iconify-icon.min.js"></script>
 <style>
   .cards{display:flex;flex-direction:column;gap:1.1rem}
   .cards > small{padding-inline:var(--gutter)}
@@ -25,7 +26,7 @@
   .strip .curve{stroke:var(--accent);stroke-width:2;fill:none;opacity:.8}
   .strip .nowline{stroke:rgba(234,241,246,.28);stroke-width:1.5;stroke-dasharray:3 4}
   .strip .pdot{fill:var(--photo);stroke:var(--ground);stroke-width:2}
-  .strip .zero{stroke:var(--line);stroke-dasharray:2 4}
+  .strip .zero{stroke:var(--muted);opacity:.55;stroke-width:1.5;stroke-dasharray:5 5}
   .strip .mbase{fill:var(--ground);stroke:var(--muted);stroke-width:1}
   .strip .mlit{fill:var(--ink)}
 </style>
@@ -35,7 +36,10 @@
   <header>
     <h1>the stay</h1>
     <p class="sub">
-      <small>{{ range_label }} &middot; {{ station_label }}</small>
+      <small>{{ range_label }} &middot; {{ station_label }}
+        <a href="/moon" aria-label="how the moon moves our tides"><iconify-icon
+          icon="lucide:info" width="15" height="15" style="vertical-align:-3px"></iconify-icon></a>
+      </small>
       <a href="/">&larr; tides</a>
     </p>
   </header>
