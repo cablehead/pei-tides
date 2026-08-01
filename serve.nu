@@ -84,6 +84,7 @@ const STATIONS = [
 let TPL = .mj compile ($HERE | path join "templates" "tides.html")
 let MAPTPL = .mj compile ($HERE | path join "templates" "map.html")
 let LIVETPL = .mj compile ($HERE | path join "templates" "live.html")
+let STAYTPL = .mj compile ($HERE | path join "templates" "stay.html")
 
 # in-memory day cache; recreated on handler reload
 try { stor create -t cache -c {k: str, v: str} } catch { }
@@ -125,6 +126,69 @@ def fmt-dur [d: duration] {
   let h = ($mins // 60)
   let m = ($mins mod 60)
   if $h > 0 { $"($h)h ($m)m" } else { $"($m)m" }
+}
+
+# The stay page: one row per snapshot day (curve averaged across the two
+# home-beach stations), photo dots placed at their captured moment, and a
+# card per photo. All data is static files in data/ and photos/.
+def stay-context [] {
+  let snaps = (glob ($HERE | path join "data" "*.json")
+    | each {|f| open $f }
+    | where {|d| ($d | describe -d | get type) == "record" and ($d | get -o station) != null })
+  let a = $snaps.0
+  let b = ($snaps | get -o 1 | default $snaps.0)
+  let vals = ($a.curve | zip $b.curve | each {|p| ($p.0.v + $p.1.v) / 2 })
+  let from = ($a.from | into datetime)
+  let ndays = ((($a.to | into datetime) - $from) / 1day | math round)
+
+  let photos = (if (($HERE | path join "data" "photos.json") | path exists) {
+    open ($HERE | path join "data" "photos.json")
+  } else { [] })
+
+  let pad = 0.15
+  let lo = (($vals | math min) - $pad)
+  let hi = (($vals | math max) + $pad)
+  let sy = {|v| (80 - (($v - $lo) / ($hi - $lo) * 80)) | math round --precision 1 }
+  let today = (date now | date to-timezone $TZ | format date "%Y-%m-%d")
+
+  let days = (0..($ndays - 1) | each {|i|
+    let day_start = ($from + ($i * 1day))
+    # 288 5-min points per day; every 3rd -> 15-min rows, +1 to reach midnight
+    let pts = (0..96 | each {|j|
+      let idx = ([($i * 288 + $j * 3) (($vals | length) - 1)] | math min)
+      let x = ($j / 96 * 720 | math round --precision 1)
+      $"($x),(do $sy ($vals | get $idx))"
+    })
+    {
+      label: ($day_start | date to-timezone $TZ | format date "%a %-d")
+      today: (($day_start | date to-timezone $TZ | format date "%Y-%m-%d") == $today)
+      points: ($pts | str join " ")
+      dots: ($photos | each {|p|
+        let t = ($p.taken | into datetime)
+        if $t >= $day_start and $t < ($day_start + 1day) {
+          {
+            stem: ($p.file | path parse | get stem)
+            x: ((($t - $day_start) / 1min) / 1440 * 720 | math round --precision 1)
+            y: (do $sy $p.height)
+          }
+        } else { null }
+      } | compact)
+    }
+  })
+
+  {
+    range_label: ($"($from | date to-timezone $TZ | format date '%b %-d') - (($from + (($ndays - 1) * 1day)) | date to-timezone $TZ | format date '%b %-d')")
+    station_label: (if ($snaps | length) == 2 { "two-station midpoint" } else { $a.station.name })
+    days: $days
+    photos: ($photos | each {|p| {
+      stem: ($p.file | path parse | get stem)
+      file: $p.file
+      height: $p.height
+      phase: $p.phase
+      when: ($p.taken | into datetime | date to-timezone $TZ | format date "%A %B %-d, %-I:%M %P")
+      between: ($"($p.prev.kind) ($p.prev.t | into datetime | date to-timezone $TZ | format date '%-I:%M %P') \(($p.prev.v) m\) -> ($p.next.kind) ($p.next.t | into datetime | date to-timezone $TZ | format date '%-I:%M %P') \(($p.next.v) m\)")
+    }})
+  }
 }
 
 # Everything the template needs for one station, one page load.
@@ -310,6 +374,14 @@ def tides-context [code: string] {
       } true
       | to sse
       | metadata set --content-type "text/event-stream"
+    })
+
+    (route {method: "GET", path: "/stay"} {|req ctx|
+      stay-context | .mj render $STAYTPL
+    })
+
+    (route {method: "GET", path-matches: "/photos/:file"} {|req ctx|
+      .static ($HERE | path join "photos") $"/($ctx.file)"
     })
 
     (route {method: "GET", path: "/map"} {|req ctx|
