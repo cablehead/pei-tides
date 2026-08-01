@@ -200,26 +200,20 @@ def stay-context [] {
       }
     })
 
-  # moon band: declination trace + one phase disc per day (see tools/moon.nu)
+  # moon band: one disc per day. The disc face is the phase; its height above
+  # or below the equator line is the declination (see tools/moon.nu).
   let moon = (if (($HERE | path join "data" "moon.json") | path exists) {
     let m = (open ($HERE | path join "data" "moon.json"))
     let end = ($start + ($ndays * 1day))
     {
-      points: ($m.decl
-        | each {|p| $p | update t ($p.t | into datetime) }
-        | where t >= $start and t <= $end
-        | each {|p|
-          let x = ((($p.t - $start) / 1day) * $day_w | math round --precision 1)
-          # +-30 degrees maps to a 24px band around the y=42 zero line
-          $"($x),((42 - $p.deg * 0.4) | math round --precision 1)"
-        }
-        | str join " ")
       discs: ($m.days
         | each {|d| $d | update t ($d.t | into datetime) }
         | where t >= $start and t < $end
         | each {|d|
           let cx = ((($d.t - $start) / 1day) * $day_w | math round --precision 1)
-          {cx: $cx, path: (phase-path $cx 14 8 $d.frac $d.waxing)}
+          # +-29 degrees of declination maps to +-17px around the y=28 line
+          let cy = ((28 - $d.decl * 0.6) | math round --precision 1)
+          {cx: $cx, cy: $cy, path: (phase-path $cx $cy 8 $d.frac $d.waxing)}
         })
     }
   } else { null })

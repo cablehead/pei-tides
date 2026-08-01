@@ -26,7 +26,6 @@
   .strip .nowline{stroke:rgba(234,241,246,.28);stroke-width:1.5;stroke-dasharray:3 4}
   .strip .pdot{fill:var(--photo);stroke:var(--ground);stroke-width:2}
   .strip .zero{stroke:var(--line);stroke-dasharray:2 4}
-  .strip .decl{fill:none;stroke:var(--muted);stroke-width:1.5;opacity:.7}
   .strip .mbase{fill:var(--ground);stroke:var(--muted);stroke-width:1}
   .strip .mlit{fill:var(--ink)}
 </style>
@@ -44,10 +43,9 @@
   <section class="strip panel" id="days" aria-label="the trip's tide curve, dots are photos">
     {% if moon %}
     <svg width="{{ strip.w }}" height="56">
-      <line class="zero" x1="0" y1="42" x2="{{ strip.w }}" y2="42"/>
-      <polyline class="decl" points="{{ moon.points }}"/>
+      <line class="zero" x1="0" y1="28" x2="{{ strip.w }}" y2="28"/>
       {% for m in moon.discs %}
-      <circle class="mbase" cx="{{ m.cx }}" cy="14" r="8"/>
+      <circle class="mbase" cx="{{ m.cx }}" cy="{{ m.cy }}" r="8"/>
       <path class="mlit" d="{{ m.path }}"/>
       {% endfor %}
     </svg>
@@ -95,7 +93,8 @@
   </script>
 
   <footer><small>heights above chart datum, midpoint of Canoe Cove and Victoria<br>
-    above the curve: moon phase and declination (dotted line is the equator)</small></footer>
+    the moon rides above or below the equator line; the farther from it,
+    the more unequal the day's two lows</small></footer>
 </div>
 </body>
 </html>

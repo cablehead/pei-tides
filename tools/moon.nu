@@ -1,7 +1,7 @@
-# Moon data for the stay strip: declination (drives the strait's unequal
-# lows) sampled every 3 hours, and phase (spring/neap context) at local noon
-# each day. Low-precision lunar ephemeris (Astronomical Almanac truncation,
-# good to ~1 degree -- plenty for a trend band).
+# Moon data for the stay strip, one entry per day at local noon: phase
+# (spring/neap context) and declination (drives the strait's unequal lows).
+# Low-precision lunar ephemeris (Astronomical Almanac truncation, good to
+# ~1 degree -- plenty for a trend band).
 #
 #   nu tools/moon.nu 2026-07-31 2026-08-09 > data/moon.json
 
@@ -48,14 +48,10 @@ def main [from_day: string, to_day: string] {
   {
     from: (do $z $start)
     to: (do $z $end)
-    decl: (0..($hours // 3) | each {|i|
-      let t = ($start + ($i * 3hr))
-      {t: (do $z $t), deg: (moon-at $t | get decl)}
-    })
-    days: (0..((($end - $start) / 1day | math round) - 1) | each {|i|
+    days: (0..($hours // 24 - 1) | each {|i|
       let t = ($start + ($i * 1day) + 12hr)
       let m = (moon-at $t)
-      {t: (do $z $t), frac: $m.frac, waxing: $m.waxing}
+      {t: (do $z $t), frac: $m.frac, waxing: $m.waxing, decl: $m.decl}
     })
   } | to json
 }
