@@ -32,6 +32,19 @@
   .leaflet-popup-content b{display:block;margin-bottom:.15rem}
   .leaflet-popup-content a{color:var(--accent);font-weight:650;text-decoration:none}
   .leaflet-container{font:12px system-ui}
+  /* the viewer: an amber beacon -- warm against the map's cool palette */
+  .you-pin{position:relative;width:18px;height:18px}
+  .you-pin .dot{position:absolute;inset:3px;border-radius:50%;background:#ffb85c;
+    border:2px solid #0d1b26;box-shadow:0 0 8px rgba(255,184,92,.9)}
+  .you-pin .ring{position:absolute;inset:0;border-radius:50%;
+    border:2px solid #ffb85c;animation:youpulse 2s ease-out infinite}
+  @keyframes youpulse{
+    0%{transform:scale(.5);opacity:.9}
+    100%{transform:scale(2.8);opacity:0}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .you-pin .ring{animation:none;transform:scale(1.4);opacity:.5}
+  }
 </style>
 </head>
 <body>
@@ -75,12 +88,19 @@
       const here = [pos.coords.latitude, pos.coords.longitude];
       L.circle(here, {
         radius: pos.coords.accuracy,
-        color: '#eaf1f6', weight: 1, opacity: 0.35, fillOpacity: 0.08,
+        color: '#ffb85c', weight: 1, opacity: 0.3, fillOpacity: 0.06,
       }).addTo(map);
-      L.circleMarker(here, {
-        radius: 7, color: '#0d1b26', weight: 2,
-        fillColor: '#eaf1f6', fillOpacity: 1,
+      L.marker(here, {
+        icon: L.divIcon({
+          className: '',
+          html: '<div class="you-pin"><div class="ring"></div><div class="dot"></div></div>',
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
+        }),
+        zIndexOffset: 1000,
       }).bindPopup('<b>you</b>').addTo(map);
+      // reframe so the view always includes the viewer
+      map.fitBounds(bounds.concat([here]), {padding: [36, 36]});
     }, () => {}, {enableHighAccuracy: true, timeout: 10000});
   }
 </script>
