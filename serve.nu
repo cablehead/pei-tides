@@ -133,6 +133,31 @@ def fmt-dur [d: duration] {
 # (context for photo annotation); the page shows just the trip.
 const STAY = {from: "2026-07-31", nights: 8}
 
+# Phone uploads: POST /upload with a bearer token drops originals into an
+# inbox under $env.SITE_STATE (survives deploys; falls back to the repo dir
+# locally, gitignored). Only the token's sha256 lives here -- the token
+# itself is in the uploader (an iOS Shortcut) and .upload-token locally.
+const UPLOAD_TOKEN_HASH = "12e5ba7d5a1dd7d1c45339e1b94e0fe14292cc8bab4f9d458fd3af766b76de62"
+
+def authed [req: record] {
+  let tok = ($req.headers | get -o authorization | default "" | str replace -r '^[Bb]earer ' '')
+  ($tok | is-not-empty) and (($tok | hash sha256) == $UPLOAD_TOKEN_HASH)
+}
+
+def inbox-dir [] {
+  let d = ($env | get -o SITE_STATE | default $HERE | path join "inbox")
+  mkdir $d
+  $d
+}
+
+def safe-name [n: string] {
+  $n | path basename | str replace -ra '[^A-Za-z0-9._-]' '_'
+}
+
+def deny [] {
+  "unauthorized" | metadata set { merge {'http.response': {status: 401}} }
+}
+
 # svg path for the lit part of a moon disc: outer limb (right when waxing,
 # left when waning) plus an elliptical terminator whose width follows the
 # illuminated fraction
@@ -441,6 +466,33 @@ def tides-context [code: string] {
       } true
       | to sse
       | metadata set --content-type "text/event-stream"
+    })
+
+    # Phone photo drop: raw body in, filename from ?name=. The Shortcut on
+    # the phone holds the bearer token.
+    (route {method: "POST", path: "/upload"} {|req ctx|
+      let bytes = $in
+      if not (authed $req) { deny } else {
+        let name = (safe-name ($req | get -o query | get -o name
+          | default $"photo-(date now | format date '%s').jpg"))
+        $bytes | save -f ((inbox-dir) | path join $name)
+        {saved: $name, bytes: ($bytes | bytes length)}
+      }
+    })
+
+    (route {method: "GET", path: "/inbox"} {|req ctx|
+      if not (authed $req) { deny } else {
+        ls (inbox-dir) | each {|f| {name: ($f.name | path basename), size: $f.size, modified: $f.modified} }
+      }
+    })
+
+    (route {method: "GET", path-matches: "/inbox/:file"} {|req ctx|
+      let p = ((inbox-dir) | path join (safe-name $ctx.file))
+      if not (authed $req) { deny } else if not ($p | path exists) {
+        "not found" | metadata set { merge {'http.response': {status: 404}} }
+      } else {
+        open --raw $p | metadata set --content-type "application/octet-stream"
+      }
     })
 
     # The explainer: markdown rendered by the built-in .md, in the shared shell.
