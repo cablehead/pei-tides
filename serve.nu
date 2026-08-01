@@ -153,6 +153,10 @@ def tides-context [code: string] {
   })
 
   let next = ($events | where t > $now | get -o 0)
+  # between a low and a high the tide rises: the next event's kind is the trend
+  let trend = if $next == null { null } else {
+    if $next.kind == "high" { "rising" } else { "falling" }
+  }
 
   # --- svg tide curve for today ------------------------------------------
   let w = 720
@@ -174,12 +178,22 @@ def tides-context [code: string] {
   let now_idx = ([([($now_min // 15) 0] | math max) ($n - 1)] | math min)
   let today_events = ($events | where t < ($midnight + 1day))
 
+  # rate of change over the next hour (4 curve samples), for the trend line
+  let ahead = ([($now_idx + 4) ($n - 1)] | math min)
+  let rate = if $ahead > $now_idx {
+    let dv = (($curve | get $ahead | get v) - ($curve | get $now_idx | get v))
+    let per_h = ($dv / (($ahead - $now_idx) * 15) * 60 | math abs | math round --precision 1)
+    if $per_h < 0.05 { null } else { $"($per_h) m/h" }
+  } else { null }
+
   let ctx = {
     code: $code
     station: $station.name
     stations: $STATIONS
     date_label: ($now | format date "%A, %B %-d")
     updated: ($now | fmt-time)
+    trend: $trend
+    rate: $rate
     next: (if $next == null { null } else {
       {
         kind: $next.kind

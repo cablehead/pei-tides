@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d1b26">
-<meta http-equiv="refresh" content="600">
 <title>{{ station }} tides</title>
 <style>
   :root{
@@ -32,8 +31,8 @@
   .date{color:var(--muted);font-size:.85rem;padding-left:.15rem}
 
   .hero{display:flex;flex-direction:column;gap:.1rem;padding:.4rem .15rem 0}
-  .hero .kind{font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
-  .hero .kind.high{color:var(--high)} .hero .kind.low{color:var(--low)}
+  .hero .trend{font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+  .hero .trend.rising{color:var(--high)} .hero .trend.falling{color:var(--low)}
   .hero .time{font-size:clamp(3rem,16vw,4.1rem);font-weight:700;line-height:1.05;
     font-variant-numeric:tabular-nums;letter-spacing:-.02em}
   .hero .in{color:var(--muted);font-size:1rem}
@@ -74,6 +73,7 @@
   .ev.high b{color:var(--high)} .ev.low b{color:var(--low)}
 
   footer{color:var(--faint);font-size:.72rem;text-align:center;line-height:1.6}
+  footer a{color:var(--muted);text-decoration-color:var(--line)}
 </style>
 </head>
 <body>
@@ -92,9 +92,9 @@
 
   {% if next %}
   <section class="hero">
-    <div class="kind {{ next.kind }}">{{ next.kind }} tide</div>
+    <div class="trend {{ trend }}">{{ trend }}{% if rate %} &middot; {{ rate }}{% endif %}</div>
     <div class="time">{{ next.time }}</div>
-    <div class="in">in {{ next.in }} &middot; {{ next.height }}</div>
+    <div class="in">{{ next.kind }} in {{ next.in }} &middot; {{ next.height }}</div>
   </section>
   {% endif %}
 
@@ -136,7 +136,8 @@
   </section>
 
   <footer>
-    CHS predictions, heights above chart datum<br>
+    <a href="https://www.tides.gc.ca/en/stations/{{ code }}">CHS predictions</a>,
+    heights above chart datum<br>
     {{ station }} &middot; updated {{ updated }}
   </footer>
 </div>
